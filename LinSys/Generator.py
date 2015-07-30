@@ -38,12 +38,13 @@ def replaceMulti(s, r):
 def replaceSingle(s):
 	prod = Rule.getProductions()
 	idx = 0
-	for c in s:
+	a = list(s)
+	for c in a:
 		for p in prod:
 			if c == p[0]:
-				s[:idx+1].replace(c, p[1])
+				a[idx] = p[1]
 		idx += 1
-	return s
+	return "".join(a)
 
 def convert(s, n, multi=False):
 	if (n == 0):

@@ -5,6 +5,7 @@ import Generator
 import AddRuleDialog as d
 import Draw
 import math
+import time
 
 class Application(tk.Frame):
 
@@ -88,33 +89,43 @@ class Application(tk.Frame):
     def generate(self):
         n = int(self.menu_gen.get())
         seed = self.inp_seed.get()
-        self.output = Generator.convert(seed, n, True)
+        self.output = Generator.convert(seed, n)
+        self.generated = True
+
+    def draw(self, n, step=False):
+        p1, p2 = Draw.move(n)
+        self.canvas.create_line(p1[0], p1[1], p2[0], p2[1])
+        if step:
+            self.canvas.update_idletasks()
 
     def do(self, action):
         params = action.split(' ')
         cmd = params[0].lower()
         if cmd == "draw":
+            step = int(self.slid_timer.get())
             n = 1.0
             if len(params) > 1:
                 n = params[1]
-            p1, p2 = Draw.move(n)
-            self.canvas.create_line(p1[0], p1[1], p2[0], p2[1])
+            if step > 0:
+                self.after(step, self.draw(n, True))
+            else:
+                self.draw(n)
         elif cmd == "turn":
             Draw.turn(params[1])
         elif cmd == "back":
             pass
-
         else:
             print("Unknown command " + cmd)
 
     def drawAll(self):
-        Draw.set(self.startingPoint, float(self.slid_linesize.get()))
-        self.canvas.delete("all")
-        for c in self.output:
-            for r in Rule.getDrawings():
-                if c == r[0]:
-                    self.do(r[1])
-                    break
+        if self.generated == True:
+            Draw.set(self.startingPoint, float(self.slid_linesize.get()))
+            self.canvas.delete("all")
+            for c in self.output:
+                for r in Rule.getDrawings():
+                    if c == r[0]:
+                        self.do(r[1])
+                        break
 
     def makeInputFrame(self):
         self.inp_seed = tk.StringVar()
@@ -129,7 +140,8 @@ class Application(tk.Frame):
         self.entr_seed = tk.Entry(self.fram_seed, textvariable=self.inp_seed)
         self.list_prod = tk.Listbox(self.fram_prod, selectmode= tk.BROWSE, font="Courier 8")
         self.list_draw = tk.Listbox(self.fram_draw, selectmode= tk.BROWSE, font="Courier 8")
-        self.slid_linesize = tk.Scale(self.fram_slide, from_=0.1, to=10.0, orient=tk.HORIZONTAL, resolution=0.1)
+        self.slid_linesize = tk.Scale(self.fram_slide, from_=0.1, to=10.0, orient=tk.HORIZONTAL, resolution=0.1, length=180)
+        self.slid_timer = tk.Scale(self.fram_slide, from_=0, to=100, orient=tk.HORIZONTAL, length=180)
         self.butt_prodAdd = tk.Button(self.fram_prod, text="Add", width=8, command= self.AddProductionRule)
         self.butt_prodEdit = tk.Button(self.fram_prod, text="Edit", width=8, command= self.EditProductionRule)
         self.butt_prodDelete = tk.Button(self.fram_prod, text="Delete", width=8, command= self.DeleteProductionRule)
@@ -140,6 +152,7 @@ class Application(tk.Frame):
         tk.Label(self.fram_prod, text="Production\nRules:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_draw, text="Drawing\nRules:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_slide, text="Line Size:").grid(row=0, column=0)
+        tk.Label(self.fram_slide, text="Delay(ms):").grid(row=1, column=0)
         self.labl_gen = tk.Label(self.fram_gen, text="Generations:").grid(row=0, column=0)
 
         self.gen_value.set(1)
@@ -162,12 +175,12 @@ class Application(tk.Frame):
         self.butt_drawEdit.grid(row=1, column=1, sticky='ew')
         self.butt_drawDelete.grid(row=1, column=2, sticky='ew')
         self.slid_linesize.grid(row=0, column=1, sticky='e')
+        self.slid_timer.grid(row=1, column=1, sticky='e')
         self.menu_gen.grid(row=0, column=1)
-
 
     def makeCanvasFrame(self):
         self.fram_canvas = tk.Frame(self, bd=10, relief=self.style)
-        self.canvas = tk.Canvas(self.fram_canvas, width=1000, height=500)
+        self.canvas = tk.Canvas(self.fram_canvas, width=1400, height=800)
         self.fram_canvas.grid(row=0, column=1, sticky='nesw')
         self.canvas.grid(sticky='nesw')
 
@@ -189,7 +202,7 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 root.title("Lindenmayer Systems")
-root.geometry("1300x600+30+30")
+root.geometry("1800x900+30+30")
 #root.wm_iconbitmap('icon.ico')
 app = Application(master=root)
 app.mainloop()
