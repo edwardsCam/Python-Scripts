@@ -116,7 +116,7 @@ class Application(tk.Frame):
         elif cmd == "skip":
             Draw.skip(n)
         elif cmd == "back":
-            pass
+            Draw.back(n)
         else:
             print("Unknown command " + cmd)
 

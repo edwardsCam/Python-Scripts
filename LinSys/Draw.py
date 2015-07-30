@@ -14,7 +14,7 @@ def length(l):
 
 def turn(a):
 	global angle
-	angle = (angle + float(a)) % 360
+	angle = (angle + a) % 360
 
 def step(n):
 	global curr
@@ -29,9 +29,13 @@ def move(n):
 	global line
 	global angle
 	old = curr
-	curr = step(float(n))
+	curr = step(n)
 	return (old, curr)
 
 def skip(n):
 	global curr
-	curr = step(float(n))
+	curr = step(n)
+
+def back(n):
+	global curr
+	curr = step(n * -1)
