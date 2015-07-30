@@ -101,17 +101,20 @@ class Application(tk.Frame):
     def do(self, action):
         params = action.split(' ')
         cmd = params[0].lower()
+        if len(params) > 1:
+            n = float(params[1])
+        else:
+            n = 1.0
         if cmd == "draw":
             step = int(self.slid_timer.get())
-            n = 1.0
-            if len(params) > 1:
-                n = params[1]
             if step > 0:
                 self.after(step, self.draw(n, True))
             else:
                 self.draw(n)
         elif cmd == "turn":
-            Draw.turn(params[1])
+            Draw.turn(n)
+        elif cmd == "skip":
+            Draw.skip(n)
         elif cmd == "back":
             pass
         else:
