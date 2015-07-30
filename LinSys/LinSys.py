@@ -21,8 +21,7 @@ class Application(tk.Frame):
             if l > maxlen:
                 maxlen = l
         for r in rules:
-            diff = maxlen - len(r[0])
-            entry = ' ' * diff
+            entry = ' ' * (maxlen - len(r[0]))
             entry += r[0] + " | " + r[1]
             ret.append(entry)
         return ret
@@ -89,20 +88,17 @@ class Application(tk.Frame):
     def generate(self):
         n = int(self.menu_gen.get())
         seed = self.inp_seed.get()
-        self.output = Generator.convert(seed, n)
-
-    def draw(self, n):
-        p1, p2 = Draw.move(n)
-        self.canvas.create_line(p1[0], p1[1], p2[0], p2[1])
+        self.output = Generator.convert(seed, n, True)
 
     def do(self, action):
         params = action.split(' ')
         cmd = params[0].lower()
         if cmd == "draw":
+            n = 1.0
             if len(params) > 1:
-                self.draw(params[1])
-            else:
-                self.draw(1.0)
+                n = params[1]
+            p1, p2 = Draw.move(n)
+            self.canvas.create_line(p1[0], p1[1], p2[0], p2[1])
         elif cmd == "turn":
             Draw.turn(params[1])
         elif cmd == "back":
@@ -118,6 +114,7 @@ class Application(tk.Frame):
             for r in Rule.getDrawings():
                 if c == r[0]:
                     self.do(r[1])
+                    break
 
     def makeInputFrame(self):
         self.inp_seed = tk.StringVar()

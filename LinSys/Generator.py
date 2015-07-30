@@ -25,7 +25,7 @@ def getReplacements(s):
 def ordered(r):
 	return collections.OrderedDict(sorted(r.items(), reverse=True))
 
-def replace(s, r):
+def replaceMulti(s, r):
 	for symb in r:
 		repl = r[symb]
 		rlen = len(repl)
@@ -35,9 +35,22 @@ def replace(s, r):
 		s = s[:i] + repl + s[j+1:]
 	return s
 
-def convert(s, n):
+def replaceSingle(s):
+	prod = Rule.getProductions()
+	idx = 0
+	for c in s:
+		for p in prod:
+			if c == p[0]:
+				s[:idx+1].replace(c, p[1])
+		idx += 1
+	return s
+
+def convert(s, n, multi=False):
 	if (n == 0):
 		return s
+	if multi:
+		r = ordered(getReplacements(s))
+		s = replaceMulti(s, r)
 	else:
-		s = replace(s, ordered(getReplacements(s)))
-		return convert(s, n-1)
+		s = replaceSingle(s)
+	return convert(s, n-1, multi)
