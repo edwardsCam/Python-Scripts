@@ -89,6 +89,10 @@ class Application(tk.Frame):
         seed = self.inp_seed.get()
         self.output = Generator.convert(seed, n)
         self.generated = True
+        self.text_output.config(state='normal')
+        self.text_output.delete(1.0, tk.END)
+        self.text_output.insert(tk.END, self.output)
+        self.text_output.config(state='disabled')
 
     def draw(self, n, step=False):
         p1, p2 = Draw.move(n)
@@ -138,12 +142,14 @@ class Application(tk.Frame):
         self.gen_value = tk.IntVar()
         self.fram_input = tk.Frame(self, bd=2, relief=self.style, width=300, height=900)
         self.fram_seed = tk.Frame(self.fram_input, bd=1, relief=self.style)
-        self.fram_gen = tk.Frame(self.fram_input, bd=1, relief=self.style)
         self.fram_prod = tk.Frame(self.fram_input, bd=1, relief=self.style)
         self.fram_draw = tk.Frame(self.fram_input, bd=1, relief=self.style)
         self.fram_slide = tk.Frame(self.fram_input, bd=1, relief=self.style)
-        self.menu_gen = ttk.Combobox(self.fram_gen, textvariable=self.gen_value)
-        self.entr_seed = tk.Entry(self.fram_seed, textvariable=self.inp_seed)
+        self.fram_gen = tk.Frame(self.fram_input, bd=1, relief=self.style)
+        self.fram_output = tk.Frame(self.fram_input, bd=1, relief=self.style)
+        self.menu_gen = ttk.Combobox(self.fram_gen, textvariable= self.gen_value)
+        self.entr_seed = tk.Entry(self.fram_seed, textvariable= self.inp_seed)
+        self.text_output = tk.Text(self.fram_output, width=35, height=10)
         self.list_prod = tk.Listbox(self.fram_prod, selectmode= tk.BROWSE, font="Courier 8")
         self.list_draw = tk.Listbox(self.fram_draw, selectmode= tk.BROWSE, font="Courier 8")
         self.slid_linesize = tk.Scale(self.fram_slide, from_=0.1, to=10.0, orient=tk.HORIZONTAL, resolution=0.1, length=180)
@@ -161,11 +167,13 @@ class Application(tk.Frame):
         tk.Label(self.fram_slide, text="Line Size:").grid(row=0, column=0)
         tk.Label(self.fram_slide, text="Delay (ms):").grid(row=1, column=0)
         tk.Label(self.fram_slide, text="Starting Angle:").grid(row=2, column=0)
+        tk.Label(self.fram_output, text="Output:").grid(row=0, column=0)
         self.labl_gen = tk.Label(self.fram_gen, text="Generations:").grid(row=0, column=0)
 
         self.gen_value.set(1)
         self.menu_gen['values'] = tuple(range(1, 13))
         self.slid_linesize.set(1.0)
+        self.text_output.config(state='disabled')
 
         self.fram_input.grid(row=0, column=0)
         self.fram_seed.grid(row=1, column=0, sticky='ew')
@@ -173,6 +181,7 @@ class Application(tk.Frame):
         self.fram_draw.grid(row=3, column=0, sticky='ew')
         self.fram_slide.grid(row=4, column=0, sticky='ew')
         self.fram_gen.grid(row=5, column=0, sticky='ew')
+        self.fram_output.grid(row=6, column=0, sticky='ew')
         self.entr_seed.grid(row=0, column=1, sticky='ew')
         self.list_prod.grid(row=0, column=1, stick='ew')
         self.butt_prodAdd.grid(row=1, column=0, sticky='ew')
@@ -186,6 +195,7 @@ class Application(tk.Frame):
         self.slid_timer.grid(row=1, column=1, sticky='e')
         self.slid_angle.grid(row=2, column=1, sticky='e')
         self.menu_gen.grid(row=0, column=1)
+        self.text_output.grid(row=1, column=0)
 
     def makeCanvasFrame(self):
         self.fram_canvas = tk.Frame(self, bd=10, relief=self.style)
