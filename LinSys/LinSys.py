@@ -120,13 +120,18 @@ class Application(tk.Frame):
 
     def drawAll(self):
         if self.generated == True:
-            Draw.set(self.startingPoint, float(self.slid_linesize.get()))
+            l = float(self.slid_linesize.get())
+            a = float(self.slid_angle.get())
+            Draw.set(self.startingPoint, l, a)
             self.canvas.delete("all")
             for c in self.output:
                 for r in Rule.getDrawings():
                     if c == r[0]:
                         self.do(r[1])
                         break
+
+    def click(self, event):
+        self.startingPoint = (event.x, event.y)
 
     def makeInputFrame(self):
         self.inp_seed = tk.StringVar()
@@ -143,6 +148,7 @@ class Application(tk.Frame):
         self.list_draw = tk.Listbox(self.fram_draw, selectmode= tk.BROWSE, font="Courier 8")
         self.slid_linesize = tk.Scale(self.fram_slide, from_=0.1, to=10.0, orient=tk.HORIZONTAL, resolution=0.1, length=180)
         self.slid_timer = tk.Scale(self.fram_slide, from_=0, to=100, orient=tk.HORIZONTAL, length=180)
+        self.slid_angle = tk.Scale(self.fram_slide, from_=0, to=359, orient=tk.HORIZONTAL, length=180)
         self.butt_prodAdd = tk.Button(self.fram_prod, text="Add", width=8, command= self.AddProductionRule)
         self.butt_prodEdit = tk.Button(self.fram_prod, text="Edit", width=8, command= self.EditProductionRule)
         self.butt_prodDelete = tk.Button(self.fram_prod, text="Delete", width=8, command= self.DeleteProductionRule)
@@ -153,7 +159,8 @@ class Application(tk.Frame):
         tk.Label(self.fram_prod, text="Production\nRules:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_draw, text="Drawing\nRules:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_slide, text="Line Size:").grid(row=0, column=0)
-        tk.Label(self.fram_slide, text="Delay(ms):").grid(row=1, column=0)
+        tk.Label(self.fram_slide, text="Delay (ms):").grid(row=1, column=0)
+        tk.Label(self.fram_slide, text="Starting Angle:").grid(row=2, column=0)
         self.labl_gen = tk.Label(self.fram_gen, text="Generations:").grid(row=0, column=0)
 
         self.gen_value.set(1)
@@ -177,6 +184,7 @@ class Application(tk.Frame):
         self.butt_drawDelete.grid(row=1, column=2, sticky='ew')
         self.slid_linesize.grid(row=0, column=1, sticky='e')
         self.slid_timer.grid(row=1, column=1, sticky='e')
+        self.slid_angle.grid(row=2, column=1, sticky='e')
         self.menu_gen.grid(row=0, column=1)
 
     def makeCanvasFrame(self):
@@ -184,6 +192,7 @@ class Application(tk.Frame):
         self.canvas = tk.Canvas(self.fram_canvas, width=1400, height=800)
         self.fram_canvas.grid(row=0, column=1, sticky='nesw')
         self.canvas.grid(sticky='nesw')
+        self.canvas.bind("<Button-1>", self.click)
 
     def makeIgnitionFrame(self):
         self.fram_ignition = tk.Frame(self, bd=4, relief=self.style)
