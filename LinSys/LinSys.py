@@ -126,13 +126,18 @@ class Application(tk.Frame):
         if self.generated == True:
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
-            Draw.set(self.startingPoint, l, a)
+            Draw.init(self.startingPoint, l, a)
             self.canvas.delete("all")
             for c in self.output:
-                for r in Rule.getDrawings():
-                    if c == r[0]:
-                        self.do(r[1])
-                        break
+                if c == '[':
+                    Draw.push()
+                elif c == ']':
+                    Draw.pop()
+                else:
+                    for r in Rule.getDrawings():
+                        if c == r[0]:
+                            self.do(r[1])
+                            break
 
     def click(self, event):
         self.startingPoint = (event.x, event.y)
@@ -213,9 +218,8 @@ class Application(tk.Frame):
         self.butt_draw.grid()
 
     def createWidgets(self):
-        self.startingPoint = (20, 20)
-        Draw.set(self.startingPoint)
         self.style = tk.RIDGE
+        self.startingPoint = (20, 20)
         self.makeInputFrame()
         self.makeCanvasFrame()
         self.makeIgnitionFrame()

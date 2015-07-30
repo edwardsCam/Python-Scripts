@@ -2,6 +2,7 @@ import Rule
 from re import finditer
 from collections import OrderedDict
 
+"""
 def getReplacements(s):
 	prod = Rule.getProductions()
 	ret = {}
@@ -21,10 +22,12 @@ def getReplacements(s):
 			if not intersect:
 				ret[hitrange] = rep
 	return ret
+"""
 
 def ordered(r):
 	return OrderedDict(sorted(r.items(), reverse=True))
 
+"""
 def replaceMulti(s, r):
 	for symb in r:
 		repl = r[symb]
@@ -34,6 +37,7 @@ def replaceMulti(s, r):
 		diff = j-i
 		s = s[:i] + repl + s[j+1:]
 	return s
+"""
 
 def replaceSingle(s):
 	prod = Rule.getProductions()
