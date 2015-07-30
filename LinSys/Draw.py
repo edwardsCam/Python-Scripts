@@ -26,8 +26,6 @@ def step(n):
 
 def move(n):
 	global curr
-	global line
-	global angle
 	old = curr
 	curr = step(n)
 	return (old, curr)

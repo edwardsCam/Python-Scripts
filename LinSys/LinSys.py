@@ -1,11 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
-import Rule
-import Generator
 import AddRuleDialog as d
+import Rule
 import Draw
-import math
-import time
+import Generator
 
 class Application(tk.Frame):
 

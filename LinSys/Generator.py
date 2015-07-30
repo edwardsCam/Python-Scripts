@@ -1,6 +1,6 @@
 import Rule
-import re
-import collections
+from re import finditer
+from collections import OrderedDict
 
 def getReplacements(s):
 	prod = Rule.getProductions()
@@ -8,7 +8,7 @@ def getReplacements(s):
 	for p in prod:
 		sym = p[0]
 		rep = p[1]
-		hits = [m.start() for m in re.finditer(sym, s)]
+		hits = [m.start() for m in finditer(sym, s)]
 		for i in hits:
 			intersect = False
 			hitrange = (i, i+len(sym)-1)
@@ -23,7 +23,7 @@ def getReplacements(s):
 	return ret
 
 def ordered(r):
-	return collections.OrderedDict(sorted(r.items(), reverse=True))
+	return OrderedDict(sorted(r.items(), reverse=True))
 
 def replaceMulti(s, r):
 	for symb in r:
