@@ -100,7 +100,8 @@ class Application(tk.Frame):
         if step:
             self.canvas.update_idletasks()
 
-    def do(self, action):
+    def do(self, action, step):
+        self.timebuff += step
         params = action.split(' ')
         cmd = params[0].lower()
         if len(params) > 1:
@@ -108,9 +109,10 @@ class Application(tk.Frame):
         else:
             n = 1.0
         if cmd == "draw":
-            step = int(self.slid_timer.get())
-            if step > 0:
-                self.after(step, self.draw(n, True))
+            if self.timebuff > 1.0:
+                truncate = int(self.timebuff)
+                self.after(truncate, self.draw(n, True))
+                self.timebuff -= truncate
             else:
                 self.draw(n)
         elif cmd == "turn":
@@ -123,6 +125,7 @@ class Application(tk.Frame):
             print("Unknown command " + cmd)
 
     def drawAll(self):
+        self.timebuff = 0.0
         if self.generated == True:
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
@@ -136,7 +139,7 @@ class Application(tk.Frame):
                 else:
                     for r in Rule.getDrawings():
                         if c == r[0]:
-                            self.do(r[1])
+                            self.do(r[1], float(self.slid_timer.get()))
                             break
 
     def click(self, event):
@@ -155,10 +158,10 @@ class Application(tk.Frame):
         self.menu_gen = ttk.Combobox(self.fram_gen, textvariable= self.gen_value)
         self.entr_seed = tk.Entry(self.fram_seed, textvariable= self.inp_seed)
         self.text_output = tk.Text(self.fram_output, width=35, height=10)
-        self.list_prod = tk.Listbox(self.fram_prod, selectmode= tk.BROWSE, font="Courier 8")
-        self.list_draw = tk.Listbox(self.fram_draw, selectmode= tk.BROWSE, font="Courier 8")
+        self.list_prod = tk.Listbox(self.fram_prod, selectmode= tk.BROWSE, font="Courier 8", height=5)
+        self.list_draw = tk.Listbox(self.fram_draw, selectmode= tk.BROWSE, font="Courier 8", height=5)
         self.slid_linesize = tk.Scale(self.fram_slide, from_=0.1, to=10.0, orient=tk.HORIZONTAL, resolution=0.1, length=180)
-        self.slid_timer = tk.Scale(self.fram_slide, from_=0, to=100, orient=tk.HORIZONTAL, length=180)
+        self.slid_timer = tk.Scale(self.fram_slide, from_=0, to=10, orient=tk.HORIZONTAL, resolution=0.1, length=180)
         self.slid_angle = tk.Scale(self.fram_slide, from_=0, to=359, orient=tk.HORIZONTAL, length=180)
         self.butt_prodAdd = tk.Button(self.fram_prod, text="Add", width=8, command= self.AddProductionRule)
         self.butt_prodEdit = tk.Button(self.fram_prod, text="Edit", width=8, command= self.EditProductionRule)
@@ -204,7 +207,7 @@ class Application(tk.Frame):
 
     def makeCanvasFrame(self):
         self.fram_canvas = tk.Frame(self, bd=10, relief=self.style)
-        self.canvas = tk.Canvas(self.fram_canvas, width=1400, height=800)
+        self.canvas = tk.Canvas(self.fram_canvas, width=900, height=500)
         self.fram_canvas.grid(row=0, column=1, sticky='nesw')
         self.canvas.grid(sticky='nesw')
         self.canvas.bind("<Button-1>", self.click)
@@ -226,7 +229,7 @@ class Application(tk.Frame):
 
 root = tk.Tk()
 root.title("Lindenmayer Systems")
-root.geometry("1800x900+30+30")
+root.geometry("1270x680+0+0")
 #root.wm_iconbitmap('icon.ico')
 app = Application(master=root)
 app.mainloop()
