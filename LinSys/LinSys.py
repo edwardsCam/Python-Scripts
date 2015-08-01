@@ -96,7 +96,7 @@ class Application(tk.Frame):
 
     def draw(self, n, step=False):
         p1, p2 = Draw.move(n)
-        self.canvas.create_line(p1[0], p1[1], p2[0], p2[1])
+        self.canvas.create_line(p1[0], p1[1], p2[0], p2[1], fill=self.color, width=self.thick)
         if step:
             self.canvas.update_idletasks()
 
@@ -105,27 +105,36 @@ class Application(tk.Frame):
         params = action.split(' ')
         cmd = params[0].lower()
         if len(params) > 1:
-            n = float(params[1])
+            p = float(params[1])
         else:
-            n = 1.0
+            p = 1.0
         if cmd == "draw":
             if self.timebuff > 1.0:
                 truncate = int(self.timebuff)
-                self.after(truncate, self.draw(n, True))
+                self.after(truncate, self.draw(p, True))
                 self.timebuff -= truncate
             else:
-                self.draw(n)
+                self.draw(p)
         elif cmd == "turn":
-            Draw.turn(n)
+            Draw.turn(p)
         elif cmd == "skip":
-            Draw.skip(n)
+            Draw.skip(p)
         elif cmd == "back":
-            Draw.back(n)
+            Draw.back(p)
+        elif cmd == "color":
+            self.color = p
+        elif cmd == "thick":
+            self.thick = p
         else:
             print("Unknown command " + cmd)
 
-    def drawAll(self):
+    def reset(self):
         self.timebuff = 0.0
+        self.color = 'black'
+        self.thick = 1
+
+    def drawAll(self):
+        self.reset()
         if self.generated == True:
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
@@ -176,7 +185,7 @@ class Application(tk.Frame):
         tk.Label(self.fram_slide, text="Delay (ms):").grid(row=1, column=0)
         tk.Label(self.fram_slide, text="Starting Angle:").grid(row=2, column=0)
         tk.Label(self.fram_output, text="Output:").grid(row=0, column=0)
-        self.labl_gen = tk.Label(self.fram_gen, text="Generations:").grid(row=0, column=0)
+        tk.Label(self.fram_gen, text="Generations:").grid(row=0, column=0)
 
         self.gen_value.set(1)
         self.menu_gen['values'] = tuple(range(1, 13))
