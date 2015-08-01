@@ -169,7 +169,7 @@ class Application(tk.Frame):
         self.butt_drawAdd = tk.Button(self.fram_draw, text="Add", width=8, command= self.AddDrawingRule)
         self.butt_drawEdit = tk.Button(self.fram_draw, text="Edit", width=8, command= self.EditDrawingRule)
         self.butt_drawDelete = tk.Button(self.fram_draw, text="Delete", width=8, command= self.DeleteDrawingRule)
-        tk.Label(self.fram_seed, text="Seed:", width=8).grid(row=0, column=0)
+        tk.Label(self.fram_seed, text="Axiom:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_prod, text="Production\nRules:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_draw, text="Drawing\nRules:", width=8).grid(row=0, column=0)
         tk.Label(self.fram_slide, text="Line Size:").grid(row=0, column=0)
