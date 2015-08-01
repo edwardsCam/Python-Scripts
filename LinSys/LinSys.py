@@ -161,7 +161,7 @@ class Application(tk.Frame):
         self.list_prod = tk.Listbox(self.fram_prod, selectmode= tk.BROWSE, font="Courier 8", height=5)
         self.list_draw = tk.Listbox(self.fram_draw, selectmode= tk.BROWSE, font="Courier 8", height=5)
         self.slid_linesize = tk.Scale(self.fram_slide, from_=0.1, to=10.0, orient=tk.HORIZONTAL, resolution=0.1, length=180)
-        self.slid_timer = tk.Scale(self.fram_slide, from_=0, to=10, orient=tk.HORIZONTAL, resolution=0.1, length=180)
+        self.slid_timer = tk.Scale(self.fram_slide, from_=0, to=5, orient=tk.HORIZONTAL, resolution=0.05, length=180)
         self.slid_angle = tk.Scale(self.fram_slide, from_=0, to=359, orient=tk.HORIZONTAL, length=180)
         self.butt_prodAdd = tk.Button(self.fram_prod, text="Add", width=8, command= self.AddProductionRule)
         self.butt_prodEdit = tk.Button(self.fram_prod, text="Edit", width=8, command= self.EditProductionRule)
