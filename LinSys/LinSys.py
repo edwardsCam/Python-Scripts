@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-import AddRuleDialog as d
+import AddProductionRuleDialog as dp
+import AddDrawingRuleDialog as dd
 import Rule
 import Draw
 import Generator
@@ -28,7 +29,12 @@ class Application(tk.Frame):
     def getRuleFromFormatted(self, s):
         if s:
             l = s.split('|')
-            return (l[0].strip(), l[1].strip())
+            p = l[1].strip().split(" ")
+            if len(p) > 1:
+                tup = (p[0], p[1])
+            else:
+                tup = (p[0],)
+            return (l[0].strip(), tup)
 
     def RefreshLists(self):
         self.list_prod.delete(0, tk.END)
@@ -41,7 +47,7 @@ class Application(tk.Frame):
             self.list_draw.insert(tk.END, d)
 
     def AddProductionRule(self, edit=None):
-        rule = d.AddRuleDialog(self, 0, edit).result
+        rule = dp.AddProductionRuleDialog(self, edit).result
         if rule:
             if edit:
                 Rule.removeProd(edit[2])
@@ -63,7 +69,7 @@ class Application(tk.Frame):
             self.RefreshLists()
 
     def AddDrawingRule(self, edit=None):
-        rule = d.AddRuleDialog(self, 1, edit).result
+        rule = dd.AddDrawingRuleDialog(self, edit).result
         if rule:
             if edit:
                 Rule.removeDraw(edit[2])
@@ -122,9 +128,9 @@ class Application(tk.Frame):
         elif cmd == "back":
             Draw.back(p)
         elif cmd == "color":
-            self.color = p
+            self.color = p.lower()
         elif cmd == "thick":
-            self.thick = p
+            self.thick = int(p)
         else:
             print("Unknown command " + cmd)
 

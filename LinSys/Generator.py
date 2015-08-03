@@ -47,6 +47,7 @@ def replaceSingle(s):
 		for p in prod:
 			if c == p[0]:
 				a[idx] = p[1]
+				break
 		idx += 1
 	return "".join(a)
 
