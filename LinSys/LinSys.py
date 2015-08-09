@@ -41,6 +41,8 @@ class Application(Frame):
             diff = maxlen - len(r[0])
             entry = ' ' * diff
             entry += r[0] + " | " + r[1]
+            if len(r) > 2:
+                entry += " " + r[2]
             ret.append(entry)
         return ret
 
@@ -51,10 +53,10 @@ class Application(Frame):
             rule[1] = rule[1].strip()
             prod = rule[1].split(" ")
             if len(prod) == 1:
-                tup = (prod[0],)
+                params = (prod[0],)
             else:
-                tup = (prod[0], prod[1])
-            return (rule[0], tup)
+                params = (prod[0], prod[1])
+            return (rule[0],) + params
 
     def RefreshLists(self):
         self.list_prod.delete(0, END)
@@ -72,7 +74,7 @@ class Application(Frame):
         rule = dp.AddProductionRuleDialog(self, edit).result
         if rule:
             if edit:
-                Rule.removeProd(edit[2])
+                Rule.removeProd(edit[0])
             Rule.AddProduction(rule)
             self.RefreshLists()
 
@@ -80,7 +82,7 @@ class Application(Frame):
         s = self.list_prod.curselection()
         if s:
             idx = s[0]
-            rule = self.getRuleFromFormatted(self.list_prod.get(idx)) + (idx,)
+            rule = (idx,) + self.getRuleFromFormatted(self.list_prod.get(idx))
             if rule:
                 self.AddProductionRule(rule)
 
@@ -94,7 +96,9 @@ class Application(Frame):
         rule = dd.AddDrawingRuleDialog(self, edit).result
         if rule:
             if edit:
-                Rule.removeDraw(edit[2])
+                Rule.removeDraw(edit[0])
+            print("Rule")
+            print(rule)
             Rule.AddDrawing(rule)
             self.RefreshLists()
 
@@ -102,7 +106,7 @@ class Application(Frame):
         s = self.list_draw.curselection()
         if s:
             idx = s[0]
-            rule = self.getRuleFromFormatted(self.list_draw.get(idx)) + (idx,)
+            rule = (idx,) + self.getRuleFromFormatted(self.list_draw.get(idx))
             if rule:
                 self.AddDrawingRule(rule)
 
@@ -130,10 +134,9 @@ class Application(Frame):
 
     def do(self, action, step):
         self.timebuff += step
-        params = action.split(' ')
-        cmd = params[0].lower()
-        if len(params) > 1:
-            p = params[1]
+        cmd = action[0].lower()
+        if len(action) > 1:
+            p = action[1]
         else:
             p = 1.0
         if cmd == "draw":
@@ -176,7 +179,11 @@ class Application(Frame):
                 else:
                     for r in Rule.getDrawings():
                         if c == r[0]:
-                            self.do(r[1], float(self.slid_timer.get()))
+                            if len(r) > 2:
+                                params = (r[1], r[2])
+                            else:
+                                params = (r[1],)
+                            self.do(params, float(self.slid_timer.get()))
                             break
 
     def click(self, event):
@@ -188,13 +195,9 @@ class Application(Frame):
     def packRules(self, rules):
         ret = "@"
         for r in rules:
-            ret += "$"
-            ret += str(r[0])
-            ret += "|"
-            prod = str(r[1]).split(" ")
-            ret += prod[0] + ":"
-            if len(prod) > 1:
-                ret += prod[1]
+            ret += "$" + str(r[0]) + "|" + str(r[1])
+            if len(r) > 2:
+                ret += ":" + str(r[2])
         return ret
 
     def packProdRules(self):
@@ -203,18 +206,55 @@ class Application(Frame):
     def packDrawRules(self):
         return self.packRules(Rule.getDrawings())
 
+    def parseProdRules(self, raw):
+        ruleList = []
+        rules = raw.split('$')
+        for r in rules:
+            if r is not "":
+                rule = r.split('|')
+                Rule.AddProduction((rule[0], rule[1]))
+
+    def parseDrawRules(self, raw):
+        ruleList = []
+        rules = raw.split('$')
+        for r in rules:
+            if r is not "":
+                rule = r.split('|')
+                params = rule[1].split(':')
+                if params[1] is "":
+                    tup = (rule[0], params[0])
+                else:
+                    tup = (rule[0], params[0], params[1])
+                Rule.AddDrawing(tup)
+
+    def parseSaveFile(self, s):
+        options = s.split('@')
+        self.inp_seed.set(str(options[1]))
+        self.parseProdRules(options[2])
+        self.parseDrawRules(options[3])
+        self.RefreshLists()
+
     def save(self):
-        output =  self.packAxiom()
+        output = ""
+        output += self.packAxiom()
         output += self.packProdRules()
         output += self.packDrawRules()
-        filename = filedialog.asksaveasfilename(**self.file_options)
-        f = open(filename, 'w')
-        f.write(output)
-        f.close()
+        try:
+            f = open(filedialog.asksaveasfilename(**self.file_options), 'w')
+            f.write(output)
+            f.close()
+        except Exception as e:
+            print("File IO error in save\n", e)
 
     def load(self):
-        filename = filedialog.askopenfilename(**self.file_options)
-        #TODO use list comprehensions to parse
+        try:
+            f = open(filedialog.askopenfilename(**self.file_options), 'r')
+            settings = self.parseSaveFile(f.read())
+            f.close()
+            #print(settings)
+
+        except Exception as e:
+            print("File IO error in load\n" + e)
 
     def makeMenuBar(self):
         self.menubar = Menu(self);

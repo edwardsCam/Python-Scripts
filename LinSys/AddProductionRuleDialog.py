@@ -11,8 +11,8 @@ class AddProductionRuleDialog(d.Dialog):
 		self.e1.grid(row=0, column=1)
 		self.e2.grid(row=1, column=1)
 		if existingRule:
-			self.e1.insert(0, existingRule[0])
-			self.e2.insert(0, existingRule[1][0])
+			self.e1.insert(0, existingRule[1])
+			self.e2.insert(0, existingRule[2])
 		return self.e1
 
 	def validate(self):

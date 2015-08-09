@@ -16,11 +16,10 @@ class AddDrawingRuleDialog(d.Dialog):
 		self.e2.grid(row=1, column=1)
 		self.e3.grid(row=1, column=2)
 		if existingRule:
-			r = existingRule[1]
-			self.e1.insert(0, existingRule[0])
-			self.e2.insert(0, r[0])
-			if len(r) > 1:
-				self.e3.insert(0, r[1])
+			self.e1.insert(0, existingRule[1])
+			self.e2.insert(0, existingRule[2])
+			if len(existingRule) > 3:
+				self.e3.insert(0, existingRule[3])
 		return self.e1
 
 	def validate(self):
@@ -31,10 +30,11 @@ class AddDrawingRuleDialog(d.Dialog):
 			symb = symb.strip()
 			rule = rule.strip()
 			if param:
-				rule += " " + str(param)
-			return (symb, rule)
+				return (symb, rule, param)
+			else:
+				return (symb, rule)
 
 	def apply(self):
 		r = self.validate()
 		if r:
-			self.result = (r[0], r[1])
+			self.result = r
