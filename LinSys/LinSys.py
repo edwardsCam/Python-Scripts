@@ -111,7 +111,7 @@ class Application(tk.Frame):
         params = action.split(' ')
         cmd = params[0].lower()
         if len(params) > 1:
-            p = float(params[1])
+            p = params[1]
         else:
             p = 1.0
         if cmd == "draw":
@@ -120,13 +120,13 @@ class Application(tk.Frame):
                 self.after(truncate, self.draw(p, True))
                 self.timebuff -= truncate
             else:
-                self.draw(p)
+                self.draw(float(p))
         elif cmd == "turn":
-            Draw.turn(p)
+            Draw.turn(float(p))
         elif cmd == "skip":
-            Draw.skip(p)
+            Draw.skip(float(p))
         elif cmd == "back":
-            Draw.back(p)
+            Draw.back(float(p))
         elif cmd == "color":
             self.color = p.lower()
         elif cmd == "thick":
@@ -159,6 +159,49 @@ class Application(tk.Frame):
 
     def click(self, event):
         self.startingPoint = (event.x, event.y)
+
+    def packAxiom(self):
+        return "@" + str(self.inp_seed.get()).strip()
+
+    def packRules(self, rules):
+        ret = "@"
+        for r in rules:
+            ret += "$"
+            ret += str(r[0])
+            ret += "|"
+            prod = str(r[1]).split(" ")
+            for p in prod:
+                ret += p
+        return ret
+
+    def packProdRules(self):
+        return self.packRules(Rule.getProductions())
+
+    def packDrawRules(self):
+        return self.packRules(Rule.getDrawings())
+
+    def packSettings(self):
+        ret = "@"
+        ret += "$" + str(self.slid_linesize.get())
+        ret += "$" + str(self.slid_angle.get())
+        ret += "$" + str(self.menu_gen.get())
+        return ret
+
+    def save(self):
+        output = self.packAxiom()
+        output += self.packProdRules()
+        output += self.packDrawRules()
+        output += self.packSettings()
+        print(output)
+
+    def load(self):
+        print("load");
+
+    def makeMenuBar(self):
+        self.menubar = tk.Menu(self);
+        self.menubar.add_command(label="Save", command=self.save)
+        self.menubar.add_command(label="Load", command=self.load)
+        root.config(menu=self.menubar)
 
     def makeInputFrame(self):
         self.inp_seed = tk.StringVar()
@@ -238,6 +281,7 @@ class Application(tk.Frame):
     def createWidgets(self):
         self.style = tk.RIDGE
         self.startingPoint = (20, 20)
+        self.makeMenuBar()
         self.makeInputFrame()
         self.makeCanvasFrame()
         self.makeIgnitionFrame()
