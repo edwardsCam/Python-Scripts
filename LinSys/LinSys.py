@@ -57,7 +57,7 @@ class Application(Frame):
     def RefreshLists(self):
         self.list_prod.delete(0, END)
         self.list_draw.delete(0, END)
-        
+
         l = self.formatRules(Rule.getProductions())
         for p in l:
             self.list_prod.insert(END, p)
@@ -190,8 +190,9 @@ class Application(Frame):
             ret += str(r[0])
             ret += "|"
             prod = str(r[1]).split(" ")
-            for p in prod:
-                ret += p
+            ret += prod[0] + ":"
+            if len(prod) > 1:
+                ret += prod[1]
         return ret
 
     def packProdRules(self):

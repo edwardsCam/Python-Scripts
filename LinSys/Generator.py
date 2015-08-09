@@ -1,5 +1,4 @@
 import Rule
-from re import finditer
 
 def replace(s):
 	prod = Rule.getProductions()
