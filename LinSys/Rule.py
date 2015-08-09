@@ -1,3 +1,4 @@
+
 ProductionRules = []
 DrawingRules = []
 
@@ -20,3 +21,9 @@ def removeProd(idx):
 
 def removeDraw(idx):
 	del DrawingRules[idx]
+
+def wipe():
+	global ProductionRules
+	global DrawingRules
+	ProductionRules = []
+	DrawingRules = []

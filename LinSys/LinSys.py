@@ -32,15 +32,8 @@ class Application(Frame):
 
     def formatRules(self, rules):
         ret = []
-        maxlen = 0
         for r in rules:
-            l = len(r[0])
-            if l > maxlen:
-                maxlen = l
-        for r in rules:
-            diff = maxlen - len(r[0])
-            entry = ' ' * diff
-            entry += r[0] + " | " + r[1]
+            entry = r[0] + " | " + r[1]
             if len(r) > 2:
                 entry += " " + r[2]
             ret.append(entry)
@@ -97,8 +90,6 @@ class Application(Frame):
         if rule:
             if edit:
                 Rule.removeDraw(edit[0])
-            print("Rule")
-            print(rule)
             Rule.AddDrawing(rule)
             self.RefreshLists()
 
@@ -116,15 +107,19 @@ class Application(Frame):
             Rule.removeDraw(s[0])
             self.RefreshLists()
 
+    def clearOutput(self, replace=None):
+        self.text_output.config(state='normal')
+        self.text_output.delete(1.0, END)
+        if replace:
+            self.text_output.insert(END, replace)
+        self.text_output.config(state='disabled')
+
     def generate(self):
         n = int(self.menu_gen.get())
         seed = self.inp_seed.get()
         self.output = Generator.convert(seed, n)
         self.generated = True
-        self.text_output.config(state='normal')
-        self.text_output.delete(1.0, END)
-        self.text_output.insert(END, self.output)
-        self.text_output.config(state='disabled')
+        self.clearOutput(self.output)
 
     def draw(self, n, step=False):
         p1, p2 = Draw.move(n)
@@ -207,27 +202,27 @@ class Application(Frame):
         return self.packRules(Rule.getDrawings())
 
     def parseProdRules(self, raw):
-        ruleList = []
         rules = raw.split('$')
         for r in rules:
             if r is not "":
                 rule = r.split('|')
-                Rule.AddProduction((rule[0], rule[1]))
+                tup = (rule[0], rule[1])
+                Rule.AddProduction(tup)
 
     def parseDrawRules(self, raw):
-        ruleList = []
         rules = raw.split('$')
         for r in rules:
             if r is not "":
                 rule = r.split('|')
                 params = rule[1].split(':')
-                if params[1] is "":
+                if len(params) == 1:
                     tup = (rule[0], params[0])
                 else:
                     tup = (rule[0], params[0], params[1])
                 Rule.AddDrawing(tup)
 
     def parseSaveFile(self, s):
+        Rule.wipe()
         options = s.split('@')
         self.inp_seed.set(str(options[1]))
         self.parseProdRules(options[2])
@@ -249,9 +244,13 @@ class Application(Frame):
     def load(self):
         try:
             f = open(filedialog.askopenfilename(**self.file_options), 'r')
-            settings = self.parseSaveFile(f.read())
+            self.parseSaveFile(f.read())
             f.close()
-            #print(settings)
+
+            self.slid_linesize.set(1.0)
+            self.slid_timer.set(0.0)
+            self.menu_gen.set(1)
+            self.clearOutput()
 
         except Exception as e:
             print("File IO error in load\n" + e)
