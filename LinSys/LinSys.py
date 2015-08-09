@@ -21,6 +21,8 @@ import Rule
 import Draw
 import Generator
 
+from tkinter import filedialog
+
 class Application(Frame):
 
     def __init__(self, master=None):
@@ -205,11 +207,14 @@ class Application(Frame):
         output =  self.packAxiom()
         output += self.packProdRules()
         output += self.packDrawRules()
-        print(output)
+        filename = filedialog.asksaveasfilename(**self.file_options)
+        f = open(filename, 'w')
+        f.write(output)
+        f.close()
 
     def load(self):
+        filename = filedialog.askopenfilename(**self.file_options)
         #TODO use list comprehensions to parse
-        print("load");
 
     def makeMenuBar(self):
         self.menubar = Menu(self);
@@ -220,35 +225,35 @@ class Application(Frame):
     def makeInputFrame(self):
         self.inp_seed         = String()
         self.gen_value        = Int()
-        self.fram_input       = Frame(self, bd=2, relief=self.style, width=300, height=900)
-        self.fram_seed        = Frame(self.fram_input, bd=1, relief=self.style)
-        self.fram_prod        = Frame(self.fram_input, bd=1, relief=self.style)
-        self.fram_draw        = Frame(self.fram_input, bd=1, relief=self.style)
-        self.fram_slide       = Frame(self.fram_input, bd=1, relief=self.style)
-        self.fram_gen         = Frame(self.fram_input, bd=1, relief=self.style)
-        self.fram_output      = Frame(self.fram_input, bd=1, relief=self.style)
-        self.menu_gen         = DropDown(self.fram_gen, textvariable= self.gen_value)
-        self.entr_seed        = Input(self.fram_seed, textvariable= self.inp_seed)
-        self.text_output      = Output(self.fram_output, width=35, height=10)
-        self.list_prod        = List(self.fram_prod, selectmode= BROWSE, font="Courier 8", height=5)
-        self.list_draw        = List(self.fram_draw, selectmode= BROWSE, font="Courier 8", height=5)
-        self.slid_linesize    = Slider(self.fram_slide, from_=0.1, to=10.0, orient=HORIZONTAL, resolution=0.1, length=180)
-        self.slid_timer       = Slider(self.fram_slide, from_=0, to=5, orient=HORIZONTAL, resolution=0.05, length=180)
-        self.slid_angle       = Slider(self.fram_slide, from_=0, to=359, orient=HORIZONTAL, length=180)
-        self.butt_prodAdd     = Button(self.fram_prod, text="Add", width=8, command= self.AddProductionRule)
-        self.butt_prodEdit    = Button(self.fram_prod, text="Edit", width=8, command= self.EditProductionRule)
-        self.butt_prodDelete  = Button(self.fram_prod, text="Delete", width=8, command= self.DeleteProductionRule)
-        self.butt_drawAdd     = Button(self.fram_draw, text="Add", width=8, command= self.AddDrawingRule)
-        self.butt_drawEdit    = Button(self.fram_draw, text="Edit", width=8, command= self.EditDrawingRule)
-        self.butt_drawDelete  = Button(self.fram_draw, text="Delete", width=8, command= self.DeleteDrawingRule)
-        Label(self.fram_seed,   text="Axiom:", width=8).grid(row=0, column=0)
-        Label(self.fram_prod,   text="Production\nRules:", width=8).grid(row=0, column=0)
-        Label(self.fram_draw,   text="Drawing\nRules:", width=8).grid(row=0, column=0)
-        Label(self.fram_slide,  text="Line Size:").grid(row=0, column=0)
-        Label(self.fram_slide,  text="Delay (ms):").grid(row=1, column=0)
-        Label(self.fram_slide,  text="Starting Angle:").grid(row=2, column=0)
-        Label(self.fram_output, text="Output:").grid(row=0, column=0)
-        Label(self.fram_gen,    text="Generations:").grid(row=0, column=0)
+        self.fram_input       = Frame(self,              bd= 2, relief= self.style, width= 300, height= 900)
+        self.fram_seed        = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.fram_prod        = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.fram_draw        = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.fram_slide       = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.fram_gen         = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.fram_output      = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.menu_gen         = DropDown(self.fram_gen,  textvariable= self.gen_value)
+        self.entr_seed        = Input(self.fram_seed,    textvariable= self.inp_seed)
+        self.text_output      = Output(self.fram_output, width= 35, height= 10)
+        self.list_prod        = List(self.fram_prod,     selectmode= BROWSE, font= "Courier 8", height= 5)
+        self.list_draw        = List(self.fram_draw,     selectmode= BROWSE, font= "Courier 8", height= 5)
+        self.slid_linesize    = Slider(self.fram_slide,  from_= 0.1, to= 10.0, orient=HORIZONTAL, resolution= 0.1, length= 180)
+        self.slid_timer       = Slider(self.fram_slide,  from_= 0, to= 5,          orient= HORIZONTAL, resolution= 0.05, length= 180)
+        self.slid_angle       = Slider(self.fram_slide,  from_= 0, to= 359,        orient= HORIZONTAL, length= 180)
+        self.butt_prodAdd     = Button(self.fram_prod,   text= "Add",    width=8, command= self.AddProductionRule)
+        self.butt_prodEdit    = Button(self.fram_prod,   text= "Edit",   width=8, command= self.EditProductionRule)
+        self.butt_prodDelete  = Button(self.fram_prod,   text= "Delete", width=8, command= self.DeleteProductionRule)
+        self.butt_drawAdd     = Button(self.fram_draw,   text= "Add",    width=8, command= self.AddDrawingRule)
+        self.butt_drawEdit    = Button(self.fram_draw,   text= "Edit",   width=8, command= self.EditDrawingRule)
+        self.butt_drawDelete  = Button(self.fram_draw,   text= "Delete", width=8, command= self.DeleteDrawingRule)
+        Label(self.fram_seed,   text= "Axiom:", width=8).grid(row=0, column=0)
+        Label(self.fram_prod,   text= "Production\nRules:", width=8).grid(row=0, column=0)
+        Label(self.fram_draw,   text= "Drawing\nRules:", width=8).grid(row=0, column=0)
+        Label(self.fram_slide,  text= "Line Size:").grid(row=0, column=0)
+        Label(self.fram_slide,  text= "Delay (ms):").grid(row=1, column=0)
+        Label(self.fram_slide,  text= "Starting Angle:").grid(row=2, column=0)
+        Label(self.fram_output, text= "Output:").grid(row=0, column=0)
+        Label(self.fram_gen,    text= "Generations:").grid(row=0, column=0)
 
         self.gen_value.set(1)
         self.menu_gen['values'] = tuple(range(1, 13))
@@ -296,6 +301,10 @@ class Application(Frame):
         self.style         = RIDGE
         self.startingPoint = (20, 20)
         self.generated     = False
+        self.file_options = {}
+        self.file_options['defaultextension'] = '.txt'
+        self.file_options['filetypes'] = [('Plaintext', '.txt')]
+        self.file_options['initialdir'] = 'Patterns'
         self.makeMenuBar()
         self.makeInputFrame()
         self.makeCanvasFrame()

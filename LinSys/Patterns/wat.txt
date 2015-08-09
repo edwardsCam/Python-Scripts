@@ -1,0 +1,1 @@
+@a@$a|b-a-b:$b|a+b+a:@$+|turn:60$-|turn:-60$a|draw:$b|draw:2
