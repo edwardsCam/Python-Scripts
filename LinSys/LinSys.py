@@ -28,7 +28,7 @@ class Application(Frame):
         self.pack()
         self.createWidgets()
 
-    def format(self, rules):
+    def formatRules(self, rules):
         ret = []
         maxlen = 0
         for r in rules:
@@ -36,29 +36,34 @@ class Application(Frame):
             if l > maxlen:
                 maxlen = l
         for r in rules:
-            entry = ' ' * (maxlen - len(r[0]))
+            diff = maxlen - len(r[0])
+            entry = ' ' * diff
             entry += r[0] + " | " + r[1]
             ret.append(entry)
         return ret
 
     def getRuleFromFormatted(self, s):
         if s:
-            l = s.split('|')
-            p = l[1].strip().split(" ")
-            if len(p) > 1:
-                tup = (p[0], p[1])
+            rule = s.split('|')
+            rule[0] = rule[0].strip()
+            rule[1] = rule[1].strip()
+            prod = rule[1].split(" ")
+            if len(prod) == 1:
+                tup = (prod[0],)
             else:
-                tup = (p[0],)
-            return (l[0].strip(), tup)
+                tup = (prod[0], prod[1])
+            return (rule[0], tup)
 
     def RefreshLists(self):
         self.list_prod.delete(0, END)
         self.list_draw.delete(0, END)
-        prod = self.format(Rule.getProductions())
-        draw = self.format(Rule.getDrawings())
-        for p in prod:
+        
+        l = self.formatRules(Rule.getProductions())
+        for p in l:
             self.list_prod.insert(END, p)
-        for d in draw:
+
+        l = self.formatRules(Rule.getDrawings())
+        for d in l:
             self.list_draw.insert(END, d)
 
     def AddProductionRule(self, edit=None):
@@ -143,7 +148,7 @@ class Application(Frame):
         elif cmd == "back":
             Draw.back(float(p))
         elif cmd == "color":
-            self.color = p.lower()
+            self.color = p
         elif cmd == "thick":
             self.thick = int(p)
         else:
@@ -196,14 +201,14 @@ class Application(Frame):
         return self.packRules(Rule.getDrawings())
 
     def packSettings(self):
-        ret = "@"
+        ret =  "@"
         ret += "$" + str(self.slid_linesize.get())
         ret += "$" + str(self.slid_angle.get())
         ret += "$" + str(self.menu_gen.get())
         return ret
 
     def save(self):
-        output = self.packAxiom()
+        output =  self.packAxiom()
         output += self.packProdRules()
         output += self.packDrawRules()
         output += self.packSettings()
@@ -215,9 +220,9 @@ class Application(Frame):
 
     def makeMenuBar(self):
         self.menubar = Menu(self);
-        self.menubar.add_command(label="Save", command=self.save)
-        self.menubar.add_command(label="Load", command=self.load)
-        root.config(menu=self.menubar)
+        self.menubar.add_command(label="Save", command= self.save)
+        self.menubar.add_command(label="Load", command= self.load)
+        root.config(menu= self.menubar)
 
     def makeInputFrame(self):
         self.inp_seed = String()

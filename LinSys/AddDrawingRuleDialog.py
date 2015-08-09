@@ -4,7 +4,7 @@ from tkinter import ttk
 
 class AddDrawingRuleDialog(d.Dialog):
 
-	def body(self, master, rule=None):
+	def body(self, master, existingRule=None):
 		self.cmd = tk.StringVar()
 		tk.Label(master, text="Symbol:").grid(row=0)
 		tk.Label(master, text="Rule:").grid(row=1)
@@ -15,9 +15,9 @@ class AddDrawingRuleDialog(d.Dialog):
 		self.e1.grid(row=0, column=1, columnspan=2)
 		self.e2.grid(row=1, column=1)
 		self.e3.grid(row=1, column=2)
-		if rule:
-			r = rule[1]
-			self.e1.insert(0, rule[0])
+		if existingRule:
+			r = existingRule[1]
+			self.e1.insert(0, existingRule[0])
 			self.e2.insert(0, r[0])
 			if len(r) > 1:
 				self.e3.insert(0, r[1])

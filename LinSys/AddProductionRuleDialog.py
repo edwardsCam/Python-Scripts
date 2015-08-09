@@ -3,16 +3,16 @@ import tkinter as tk
 
 class AddProductionRuleDialog(d.Dialog):
 
-	def body(self, master, rule=None):
+	def body(self, master, existingRule=None):
 		tk.Label(master, text="Symbol:").grid(row=0)
 		tk.Label(master, text="Replacement:").grid(row=1)
 		self.e1 = tk.Entry(master)
 		self.e2 = tk.Entry(master)
 		self.e1.grid(row=0, column=1)
 		self.e2.grid(row=1, column=1)
-		if rule:
-			self.e1.insert(0, rule[0])
-			self.e2.insert(0, rule[1][0])
+		if existingRule:
+			self.e1.insert(0, existingRule[0])
+			self.e2.insert(0, existingRule[1][0])
 		return self.e1
 
 	def validate(self):
