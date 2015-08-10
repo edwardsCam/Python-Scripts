@@ -1,0 +1,1 @@
+@t[7]++[7]++[7]++[7]++[7]@$6|281++91----71[-81----61]++$7|3+81--91[---61--71]+$8|4-61++71[+++81++91]-$9|5--81++++61[+91++++71]--71@$+|turn:36$-|turn:-36$1|skip:0.1$2|color:darkolivegreen3$3|color:darkseagreen2$4|color:lightsteelblue2$5|color:turquoise2$6|draw:2$7|draw:2$8|draw:2$9|draw:2$t|thick:2
