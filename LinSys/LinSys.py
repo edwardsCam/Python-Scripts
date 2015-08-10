@@ -14,6 +14,7 @@ from tkinter import END
 from tkinter import RIDGE
 from tkinter import BROWSE
 from tkinter import HORIZONTAL
+from tkinter import filedialog
 from tkinter.ttk import Combobox as DropDown
 import AddProductionRuleDialog as dp
 import AddDrawingRuleDialog as dd
@@ -21,98 +22,12 @@ import Rule
 import Draw
 import Generator
 
-from tkinter import filedialog
-
 class Application(Frame):
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.pack()
         self.createWidgets()
-
-    def formatRules(self, rules):
-        ret = []
-        for r in rules:
-            entry = r[0] + " | " + r[1]
-            if len(r) > 2:
-                entry += " " + r[2]
-            ret.append(entry)
-        return ret
-
-    def getRuleFromFormatted(self, s):
-        if s:
-            rule = s.split('|')
-            rule[0] = rule[0].strip()
-            rule[1] = rule[1].strip()
-            prod = rule[1].split(" ")
-            if len(prod) == 1:
-                params = (prod[0],)
-            else:
-                params = (prod[0], prod[1])
-            return (rule[0],) + params
-
-    def RefreshLists(self):
-        self.list_prod.delete(0, END)
-        self.list_draw.delete(0, END)
-
-        l = self.formatRules(Rule.getProductions())
-        for p in l:
-            self.list_prod.insert(END, p)
-
-        l = self.formatRules(Rule.getDrawings())
-        for d in l:
-            self.list_draw.insert(END, d)
-
-    def AddProductionRule(self, edit=None):
-        rule = dp.AddProductionRuleDialog(self, edit).result
-        if rule:
-            if edit:
-                Rule.removeProd(edit[0])
-            Rule.AddProduction(rule)
-            self.RefreshLists()
-
-    def EditProductionRule(self):
-        s = self.list_prod.curselection()
-        if s:
-            idx = s[0]
-            rule = (idx,) + self.getRuleFromFormatted(self.list_prod.get(idx))
-            if rule:
-                self.AddProductionRule(rule)
-
-    def DeleteProductionRule(self):
-        s = self.list_prod.curselection()
-        if s:
-            Rule.removeProd(s[0])
-            self.RefreshLists()
-
-    def AddDrawingRule(self, edit=None):
-        rule = dd.AddDrawingRuleDialog(self, edit).result
-        if rule:
-            if edit:
-                Rule.removeDraw(edit[0])
-            Rule.AddDrawing(rule)
-            self.RefreshLists()
-
-    def EditDrawingRule(self):
-        s = self.list_draw.curselection()
-        if s:
-            idx = s[0]
-            rule = (idx,) + self.getRuleFromFormatted(self.list_draw.get(idx))
-            if rule:
-                self.AddDrawingRule(rule)
-
-    def DeleteDrawingRule(self):
-        s = self.list_draw.curselection()
-        if s:
-            Rule.removeDraw(s[0])
-            self.RefreshLists()
-
-    def clearOutput(self, replace=None):
-        self.text_output.config(state='normal')
-        self.text_output.delete(1.0, END)
-        if replace:
-            self.text_output.insert(END, replace)
-        self.text_output.config(state='disabled')
 
     def generate(self):
         n = int(self.menu_gen.get())
@@ -155,13 +70,10 @@ class Application(Frame):
         else:
             print("Unknown command " + cmd)
 
-    def reset(self):
+    def drawAll(self):
         self.timebuff = 0.0
         self.color = 'black'
         self.thick = 1
-
-    def drawAll(self):
-        self.reset()
         if self.generated == True:
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
@@ -182,8 +94,100 @@ class Application(Frame):
                             self.do(params, float(self.slid_timer.get()))
                             break
 
-    def click(self, event):
-        self.startingPoint = (event.x, event.y)
+
+                            
+
+    def clearOutput(self, replace=None):
+        self.text_output.config(state='normal')
+        self.text_output.delete(1.0, END)
+        if replace:
+            self.text_output.insert(END, replace)
+        self.text_output.config(state='disabled')
+
+    def formatRules(self, rules):
+        ret = []
+        for r in rules:
+            entry = r[0] + " | " + r[1]
+            if len(r) > 2:
+                entry += " " + r[2]
+            ret.append(entry)
+        return ret
+
+    def getRuleFromFormatted(self, s):
+        if s:
+            rule = s.split('|')
+            rule[0] = rule[0].strip()
+            rule[1] = rule[1].strip()
+            prod = rule[1].split(" ")
+            if len(prod) == 1:
+                params = (prod[0],)
+            else:
+                params = (prod[0], prod[1])
+            return (rule[0],) + params
+
+    def RefreshLists(self):
+        self.list_prod.delete(0, END)
+        self.list_draw.delete(0, END)
+
+        l = self.formatRules(Rule.getProductions())
+        for p in l:
+            self.list_prod.insert(END, p)
+
+        l = self.formatRules(Rule.getDrawings())
+        for d in l:
+            self.list_draw.insert(END, d)
+
+
+
+
+    def AddProductionRule(self, edit=None):
+        rule = dp.AddProductionRuleDialog(self, edit).result
+        if rule:
+            if edit:
+                Rule.removeProd(edit[0])
+            Rule.AddProduction(rule)
+            self.RefreshLists()
+
+    def EditProductionRule(self):
+        s = self.list_prod.curselection()
+        if s:
+            idx = s[0]
+            rule = (idx,) + self.getRuleFromFormatted(self.list_prod.get(idx))
+            if rule:
+                self.AddProductionRule(rule)
+
+    def DeleteProductionRule(self):
+        s = self.list_prod.curselection()
+        if s:
+            Rule.removeProd(s[0])
+            self.RefreshLists()
+
+
+
+    def AddDrawingRule(self, edit=None):
+        rule = dd.AddDrawingRuleDialog(self, edit).result
+        if rule:
+            if edit:
+                Rule.removeDraw(edit[0])
+            Rule.AddDrawing(rule)
+            self.RefreshLists()
+
+    def EditDrawingRule(self):
+        s = self.list_draw.curselection()
+        if s:
+            idx = s[0]
+            rule = (idx,) + self.getRuleFromFormatted(self.list_draw.get(idx))
+            if rule:
+                self.AddDrawingRule(rule)
+
+    def DeleteDrawingRule(self):
+        s = self.list_draw.curselection()
+        if s:
+            Rule.removeDraw(s[0])
+            self.RefreshLists()
+
+
+
 
     def packAxiom(self):
         return "@" + str(self.inp_seed.get()).strip()
@@ -201,6 +205,7 @@ class Application(Frame):
 
     def packDrawRules(self):
         return self.packRules(Rule.getDrawings())
+
 
     def parseProdRules(self, raw):
         rules = raw.split('$')
@@ -222,6 +227,7 @@ class Application(Frame):
                     tup = (rule[0], params[0], params[1])
                 Rule.AddDrawing(tup)
 
+
     def parseSaveFile(self, s):
         Rule.wipe()
         options = s.split('@')
@@ -229,6 +235,7 @@ class Application(Frame):
         self.parseProdRules(options[2])
         self.parseDrawRules(options[3])
         self.RefreshLists()
+
 
     def save(self):
         output = ""
@@ -258,6 +265,12 @@ class Application(Frame):
 
         except Exception as e:
             print("File IO error in load\n" + e)
+
+
+
+
+    def click(self, event):
+        self.startingPoint = (event.x, event.y)
 
     def makeMenuBar(self):
         self.menubar = Menu(self);
