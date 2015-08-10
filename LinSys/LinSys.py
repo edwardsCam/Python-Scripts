@@ -43,12 +43,13 @@ class Application(Frame):
             self.canvas.update_idletasks()
 
     def do(self, action, step):
-        self.timebuff += step
-        cmd = action[0].lower()
         if len(action) > 1:
             p = action[1]
         else:
             p = 1.0
+
+        self.timebuff += step
+        cmd = action[0].lower()
         if cmd == "draw":
             if self.timebuff > 1.0:
                 truncate = int(self.timebuff)
@@ -63,8 +64,7 @@ class Application(Frame):
         elif cmd == "back":
             Draw.back(float(p))
         elif cmd == "color":
-            p = p.replace('_', ' ')
-            self.color = p
+            self.color = p.replace('_', ' ')
         elif cmd == "thick":
             self.thick = int(p)
         else:
@@ -85,7 +85,8 @@ class Application(Frame):
                 elif c == ']':
                     Draw.pop()
                 else:
-                    for r in Rule.getDrawings():
+                    rules = Rule.getDrawings()
+                    for r in rules:
                         if c == r[0]:
                             if len(r) > 2:
                                 params = (r[1], r[2])
@@ -97,11 +98,11 @@ class Application(Frame):
 
                             
 
-    def clearOutput(self, replace=None):
+    def clearOutput(self, replacement=None):
         self.text_output.config(state='normal')
         self.text_output.delete(1.0, END)
-        if replace:
-            self.text_output.insert(END, replace)
+        if replacement:
+            self.text_output.insert(END, replacement)
         self.text_output.config(state='disabled')
 
     def formatRules(self, rules):
@@ -120,10 +121,9 @@ class Application(Frame):
             rule[1] = rule[1].strip()
             prod = rule[1].split(" ")
             if len(prod) == 1:
-                params = (prod[0],)
+                return (rule[0], prod[0])
             else:
-                params = (prod[0], prod[1])
-            return (rule[0],) + params
+                return (rule[0], prod[0], prod[1])
 
     def RefreshLists(self):
         self.list_prod.delete(0, END)
@@ -148,22 +148,6 @@ class Application(Frame):
             Rule.AddProduction(rule)
             self.RefreshLists()
 
-    def EditProductionRule(self):
-        s = self.list_prod.curselection()
-        if s:
-            idx = s[0]
-            rule = (idx,) + self.getRuleFromFormatted(self.list_prod.get(idx))
-            if rule:
-                self.AddProductionRule(rule)
-
-    def DeleteProductionRule(self):
-        s = self.list_prod.curselection()
-        if s:
-            Rule.removeProd(s[0])
-            self.RefreshLists()
-
-
-
     def AddDrawingRule(self, edit=None):
         rule = dd.AddDrawingRuleDialog(self, edit).result
         if rule:
@@ -172,6 +156,14 @@ class Application(Frame):
             Rule.AddDrawing(rule)
             self.RefreshLists()
 
+    def EditProductionRule(self):
+        s = self.list_prod.curselection()
+        if s:
+            idx = s[0]
+            rule = (idx,) + self.getRuleFromFormatted(self.list_prod.get(idx))
+            if rule:
+                self.AddProductionRule(rule)
+
     def EditDrawingRule(self):
         s = self.list_draw.curselection()
         if s:
@@ -179,6 +171,12 @@ class Application(Frame):
             rule = (idx,) + self.getRuleFromFormatted(self.list_draw.get(idx))
             if rule:
                 self.AddDrawingRule(rule)
+
+    def DeleteProductionRule(self):
+        s = self.list_prod.curselection()
+        if s:
+            Rule.removeProd(s[0])
+            self.RefreshLists()
 
     def DeleteDrawingRule(self):
         s = self.list_draw.curselection()
@@ -209,31 +207,30 @@ class Application(Frame):
 
     def parseProdRules(self, raw):
         rules = raw.split('$')
-        for r in rules:
-            if r is not "":
-                rule = r.split('|')
-                tup = (rule[0], rule[1])
-                Rule.AddProduction(tup)
+        for rule in rules:
+            if rule is not "":
+                r = rule.split('|')
+                Rule.AddProduction((r[0], r[1]))
 
     def parseDrawRules(self, raw):
         rules = raw.split('$')
-        for r in rules:
-            if r is not "":
-                rule = r.split('|')
-                params = rule[1].split(':')
-                if len(params) == 1:
-                    tup = (rule[0], params[0])
+        for rule in rules:
+            if rule is not "":
+                r = rule.split('|')
+                p = r[1].split(':')
+                if len(p) == 1:
+                    tup = (r[0], p[0])
                 else:
-                    tup = (rule[0], params[0], params[1])
+                    tup = (r[0], p[0], p[1])
                 Rule.AddDrawing(tup)
 
 
     def parseSaveFile(self, s):
         Rule.wipe()
-        options = s.split('@')
-        self.inp_seed.set(str(options[1]))
-        self.parseProdRules(options[2])
-        self.parseDrawRules(options[3])
+        settings = s.split('@')
+        self.inp_seed.set(str(settings[1]))
+        self.parseProdRules(settings[2])
+        self.parseDrawRules(settings[3])
         self.RefreshLists()
 
 
@@ -340,7 +337,7 @@ class Application(Frame):
 
     def makeCanvasFrame(self):
         self.fram_canvas = Frame(self, bd=10, relief=self.style)
-        self.canvas      = Canvas(self.fram_canvas, width=900, height=500)
+        self.canvas      = Canvas(self.fram_canvas, width=900, height=580)
         self.fram_canvas.grid(row=0, column=1, sticky='nesw')
         self.canvas.grid(sticky='nesw')
         self.canvas.bind("<Button-1>", self.click)
