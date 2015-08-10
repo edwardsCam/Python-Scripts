@@ -51,6 +51,8 @@ class Application(Frame):
         self.timebuff += step
         cmd = action[0].lower()
         if cmd == "draw":
+            if self.incColorYN:
+                self.incColor()
             if self.timebuff > 1.0:
                 truncate = int(self.timebuff)
                 self.after(truncate, self.draw(float(p), True))
@@ -79,22 +81,16 @@ class Application(Frame):
             a = float(self.slid_angle.get())
             Draw.init(self.startingPoint, l, a)
             self.canvas.delete("all")
-            step = 1.0/len(self.output)
-            percent = 0.0
+            if self.incColorYN:
+                self.step = 1.0/float(self.getDrawCount(self.output))
+                self.percent = 0.0
             for c in self.output:
                 if c == '[':
                     Draw.push()
                 elif c == ']':
                     Draw.pop()
                 else:
-                    percent += step
-                    color = hex(int(16777215 * percent)).split('x')[1]
-                    while len(color) < 6:
-                        color = "0" + color
-                    self.color = "#" + color
-                    #print(self.color)
-                    rules = Rule.getDrawings()
-                    for r in rules:
+                    for r in Rule.getDrawings():
                         if c == r[0]:
                             if len(r) > 2:
                                 params = (r[1], r[2])
@@ -103,8 +99,25 @@ class Application(Frame):
                             self.do(params, float(self.slid_timer.get()))
                             break
 
+    def incColor(self):
+        self.percent += self.step
+        color = hex(int(16777215 * self.percent)).split('x')[1]
+        while len(color) < 6:
+            color = "0" + color
+        self.color = "#" + color
 
-                            
+    def getDrawCount(self, s):
+        draw_commands = []
+        for r in Rule.getDrawings():
+            if r[1].lower() == "draw":
+                draw_commands.append(r[0])
+        draw_count = 0;
+        for c in s:
+            for d in draw_commands:
+                if c == d:
+                    draw_count += 1
+                    break
+        return draw_count
 
     def clearOutput(self, replacement=None):
         self.text_output.config(state='normal')
@@ -359,6 +372,7 @@ class Application(Frame):
         self.butt_draw.grid()
 
     def createWidgets(self):
+        self.incColorYN    = True
         self.style         = RIDGE
         self.startingPoint = (20, 20)
         self.generated     = False
