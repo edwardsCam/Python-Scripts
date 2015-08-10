@@ -73,18 +73,26 @@ class Application(Frame):
     def drawAll(self):
         self.timebuff = 0.0
         self.color = 'black'
-        self.thick = 1
+        self.thick = 5
         if self.generated == True:
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
             Draw.init(self.startingPoint, l, a)
             self.canvas.delete("all")
+            step = 1.0/len(self.output)
+            percent = 0.0
             for c in self.output:
                 if c == '[':
                     Draw.push()
                 elif c == ']':
                     Draw.pop()
                 else:
+                    percent += step
+                    color = hex(int(16777215 * percent)).split('x')[1]
+                    while len(color) < 6:
+                        color = "0" + color
+                    self.color = "#" + color
+                    #print(self.color)
                     rules = Rule.getDrawings()
                     for r in rules:
                         if c == r[0]:
