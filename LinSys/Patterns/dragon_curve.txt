@@ -1,0 +1,1 @@
+@FX@$X|X+YF+$Y|-FX-Y@$+|turn:90$-|turn:-90$F|draw

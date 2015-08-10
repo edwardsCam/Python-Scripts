@@ -1,0 +1,1 @@
+@tX@$F|FF$X|0F-[2[X]+3X]+1F[3+FX]-X@$+|turn:25$-|turn:-25$0|color:green4$1|color:green3$3|color:green_yellow$F|draw$t|thick:2

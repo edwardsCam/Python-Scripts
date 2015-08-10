@@ -1,0 +1,1 @@
+@tF@$F|0FF-[1-F+F+F]+[2+F-F-F]@$+|turn:22$-|turn:-22$0|color:green4$1|color:green3$2|color:seagreen3$F|draw$t|thick:2

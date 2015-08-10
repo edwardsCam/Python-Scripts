@@ -148,6 +148,7 @@ class Application(Frame):
         elif cmd == "back":
             Draw.back(float(p))
         elif cmd == "color":
+            p = p.replace('_', ' ')
             self.color = p
         elif cmd == "thick":
             self.thick = int(p)
@@ -235,22 +236,25 @@ class Application(Frame):
         output += self.packProdRules()
         output += self.packDrawRules()
         try:
-            f = open(filedialog.asksaveasfilename(**self.file_options), 'w')
-            f.write(output)
-            f.close()
+            filename = filedialog.asksaveasfilename(**self.file_options)
+            if filename:
+                f = open(filename, 'w')
+                f.write(output)
+                f.close()
         except Exception as e:
             print("File IO error in save\n", e)
 
     def load(self):
         try:
-            f = open(filedialog.askopenfilename(**self.file_options), 'r')
-            self.parseSaveFile(f.read())
-            f.close()
-
-            self.slid_linesize.set(1.0)
-            self.slid_timer.set(0.0)
-            self.menu_gen.set(1)
-            self.clearOutput()
+            filename = filedialog.askopenfilename(**self.file_options)
+            if filename:
+                f = open(filename, 'r')
+                self.parseSaveFile(f.read())
+                f.close()
+                self.slid_linesize.set(1.0)
+                self.slid_timer.set(0.0)
+                self.menu_gen.set(1)
+                self.clearOutput()
 
         except Exception as e:
             print("File IO error in load\n" + e)

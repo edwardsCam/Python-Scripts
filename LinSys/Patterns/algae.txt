@@ -1,0 +1,1 @@
+@F@$F|0FF[1-F++F][2+F--F]3++F--F@$+|turn:27$-|turn:-27$0|color:green4$1|color:green3$2|color:green2$3|color:blue4$F|draw
