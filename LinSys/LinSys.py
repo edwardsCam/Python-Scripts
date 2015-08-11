@@ -53,6 +53,10 @@ class Application(Frame):
         if cmd == "draw":
             if self.incColorYN:
                 self.incColor()
+                if self.incThickYN:
+                    self.incThick(self.reverseThick, False)
+            elif self.incThickYN:
+                self.incThick(self.reverseThick, True)
             if self.timebuff > 1.0:
                 truncate = int(self.timebuff)
                 self.after(truncate, self.draw(float(p), True))
@@ -81,8 +85,8 @@ class Application(Frame):
             a = float(self.slid_angle.get())
             Draw.init(self.startingPoint, l, a)
             self.canvas.delete("all")
-            if self.incColorYN:
-                self.step = 1.0/float(self.getDrawCount(self.output))
+            if self.incColorYN or self.incThickYN:
+                self.incStep = 1.0/float(self.getDrawCount(self.output))
                 self.percent = 0.0
             for c in self.output:
                 if c == '[':
@@ -96,15 +100,28 @@ class Application(Frame):
                                 params = (r[1], r[2])
                             else:
                                 params = (r[1],)
-                            self.do(params, float(self.slid_timer.get()))
+                            s = float(self.slid_timer.get())
+                            self.do(params, s)
                             break
 
     def incColor(self):
-        self.percent += self.step
         color = hex(int(16777215 * self.percent)).split('x')[1]
         while len(color) < 6:
             color = "0" + color
         self.color = "#" + color
+        self.percent += self.incStep
+
+    def incThick(self, reverse, incYN):
+        maxthick = 5
+        minthick = 1
+        diff = maxthick - minthick
+        if reverse:
+            result = maxthick - int(diff * self.percent)
+        else:
+            result = minthick + int(diff * self.percent)
+        self.thick = result
+        if incYN:
+            self.percent += self.incStep
 
     def getDrawCount(self, s):
         draw_commands = []
@@ -373,6 +390,8 @@ class Application(Frame):
 
     def createWidgets(self):
         self.incColorYN    = True
+        self.incThickYN    = True
+        self.reverseThick  = False
         self.style         = RIDGE
         self.startingPoint = (20, 20)
         self.generated     = False
