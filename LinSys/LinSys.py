@@ -4,6 +4,7 @@ from tkinter import Menu
 from tkinter import Button
 from tkinter import Label
 from tkinter import Canvas
+from tkinter import Checkbutton as CheckBox
 from tkinter import Scale as Slider
 from tkinter import Listbox as List
 from tkinter import Entry as Input
@@ -42,7 +43,7 @@ class Application(Frame):
         if step:
             self.canvas.update_idletasks()
 
-    def do(self, action, step):
+    def do(self, action, step, rainbow):
         if len(action) > 1:
             p = action[1]
         else:
@@ -51,7 +52,7 @@ class Application(Frame):
         self.timebuff += step
         cmd = action[0].lower()
         if cmd == "draw":
-            if self.incColorYN:
+            if rainbow:
                 self.incColor()
                 if self.incThickYN:
                     self.incThick(self.reverseThick, False)
@@ -70,7 +71,8 @@ class Application(Frame):
         elif cmd == "back":
             Draw.back(float(p))
         elif cmd == "color":
-            self.color = p.replace('_', ' ')
+            if not rainbow:
+                self.color = p.replace('_', ' ')
         elif cmd == "thick":
             self.thick = int(p)
         else:
@@ -78,14 +80,15 @@ class Application(Frame):
 
     def drawAll(self):
         self.timebuff = 0.0
-        self.color = 'black'
+        self.color = '#000000'
         self.thick = 5
         if self.generated == True:
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
             Draw.init(self.startingPoint, l, a)
             self.canvas.delete("all")
-            if self.incColorYN or self.incThickYN:
+            rainbow = self.rainbowCheck.get() == 1
+            if rainbow or self.incThickYN:
                 self.incStep = 1.0/float(self.getDrawCount(self.output))
                 self.percent = 0.0
             for c in self.output:
@@ -101,7 +104,7 @@ class Application(Frame):
                             else:
                                 params = (r[1],)
                             s = float(self.slid_timer.get())
-                            self.do(params, s)
+                            self.do(params, s, rainbow)
                             break
 
     def incColor(self):
@@ -223,7 +226,12 @@ class Application(Frame):
             self.RefreshLists()
 
 
-
+    def packOutput(self):
+        ret = ""
+        ret += self.packAxiom()
+        ret += self.packProdRules()
+        ret += self.packDrawRules()
+        return ret
 
     def packAxiom(self):
         return "@" + str(self.inp_seed.get()).strip()
@@ -273,15 +281,11 @@ class Application(Frame):
 
 
     def save(self):
-        output = ""
-        output += self.packAxiom()
-        output += self.packProdRules()
-        output += self.packDrawRules()
         try:
             filename = filedialog.asksaveasfilename(**self.file_options)
             if filename:
                 f = open(filename, 'w')
-                f.write(output)
+                f.write(self.packOutput())
                 f.close()
         except Exception as e:
             print("File IO error in save\n", e)
@@ -316,6 +320,7 @@ class Application(Frame):
     def makeInputFrame(self):
         self.inp_seed         = String()
         self.gen_value        = Int()
+        self.rainbowCheck     = Int()
         self.fram_input       = Frame(self,              bd= 2, relief= self.style, width= 300, height= 900)
         self.fram_seed        = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_prod        = Frame(self.fram_input,   bd= 1, relief= self.style)
@@ -337,6 +342,7 @@ class Application(Frame):
         self.butt_drawAdd     = Button(self.fram_draw,   text= "Add",    width=8, command= self.AddDrawingRule)
         self.butt_drawEdit    = Button(self.fram_draw,   text= "Edit",   width=8, command= self.EditDrawingRule)
         self.butt_drawDelete  = Button(self.fram_draw,   text= "Delete", width=8, command= self.DeleteDrawingRule)
+        self.chek_incColor    = CheckBox(self.fram_draw, text= "Rainbow", variable= self.rainbowCheck)
         Label(self.fram_seed,   text= "Axiom:", width=8).grid(row=0, column=0)
         Label(self.fram_prod,   text= "Production\nRules:", width=8).grid(row=0, column=0)
         Label(self.fram_draw,   text= "Drawing\nRules:", width=8).grid(row=0, column=0)
@@ -367,6 +373,7 @@ class Application(Frame):
         self.butt_drawAdd.grid(   row=1, column=0, sticky='ew')
         self.butt_drawEdit.grid(  row=1, column=1, sticky='ew')
         self.butt_drawDelete.grid(row=1, column=2, sticky='ew')
+        self.chek_incColor.grid(  row=0, column=2)
         self.slid_linesize.grid(  row=0, column=1, sticky='e')
         self.slid_timer.grid(     row=1, column=1, sticky='e')
         self.slid_angle.grid(     row=2, column=1, sticky='e')
@@ -383,14 +390,13 @@ class Application(Frame):
     def makeIgnitionFrame(self):
         self.fram_ignition = Frame(self, bd=4, relief=self.style)
         self.butt_generate = Button(self.fram_ignition, text=" -- GENERATE -- ", width=100, command= self.generate)
-        self.butt_draw     = Button(self.fram_ignition, text=" -- DRAW -- ", width=100, command= self.drawAll)
+        self.butt_draw     = Button(self.fram_ignition, text=" -- DRAW -- ",     width=100, command= self.drawAll)
         self.fram_ignition.grid(row=1, column=0, columnspan=2)
         self.butt_generate.grid()
         self.butt_draw.grid()
 
     def createWidgets(self):
-        self.incColorYN    = True
-        self.incThickYN    = True
+        self.incThickYN    = False
         self.reverseThick  = False
         self.style         = RIDGE
         self.startingPoint = (20, 20)
