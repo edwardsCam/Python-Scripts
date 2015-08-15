@@ -16,7 +16,7 @@ from tkinter.ttk import Combobox as DropDown
 import AddProductionRuleDialog as dp
 import AddDrawingRuleDialog as dd
 import BigCanvas as dc
-import Rule, Draw, Generator
+import Rule, Draw, Generator, Color
 
 class Application(Frame):
 
@@ -29,10 +29,11 @@ class Application(Frame):
         n = int(self.menu_gen.get())
         seed = self.inp_seed.get()
         self.output = Generator.convert(seed, n)
-        self.generated = True
-        self.butt_draw.config(    state= 'normal')
-        self.chek_fullscrn.config(state= 'normal')
-        self.clearOutput(self.output)
+        if len(self.output) > 0:
+            self.generated = True
+            self.butt_draw.config(    state= 'normal')
+            self.chek_fullscrn.config(state= 'normal')
+            self.clearOutput(self.output)
 
     def draw(self, n, step=False):
         p1, p2 = Draw.move(n)
@@ -69,7 +70,7 @@ class Application(Frame):
             Draw.back(float(p))
         elif cmd == "color":
             if not rainbow:
-                self.color = p.replace('_', ' ')
+                self.color = Color.get(p)
         elif cmd == "thick":
             self.thick = int(p)
         else:
@@ -79,7 +80,7 @@ class Application(Frame):
         if self.generated == True:
             self.butt_print.config(state= 'disabled')
             self.timebuff = 0.0
-            self.color = '#000000'
+            self.color = Color.white()
             self.thick = 5
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
@@ -91,6 +92,7 @@ class Application(Frame):
             else:
                 self.curr_canvas = self.canvas
             self.curr_canvas.delete("all")
+            self.curr_canvas.config(bg= Color.get(self.bgColor.get()))
             rainbow = self.rainbowCheck.get() == 1
             if rainbow or self.incThickYN:
                 self.incStep = 1.0/float(self.getDrawCount(self.output))
@@ -113,10 +115,7 @@ class Application(Frame):
             self.butt_print.config(state= 'normal')
 
     def incColor(self):
-        color = hex(int(16777215 * self.percent)).split('x')[1]
-        while len(color) < 6:
-            color = "0" + color
-        self.color = "#" + color
+        self.color    = Color.getByPercent(self.percent)
         self.percent += self.incStep
 
     def incThick(self, reverse, incYN):
@@ -145,11 +144,11 @@ class Application(Frame):
         return draw_count
 
     def clearOutput(self, replacement=None):
-        self.text_output.config(state='normal')
+        self.text_output.config(state= 'normal')
         self.text_output.delete(1.0, END)
         if replacement:
             self.text_output.insert(END, replacement)
-        self.text_output.config(state='disabled')
+        self.text_output.config(state= 'disabled')
 
     def formatRules(self, rules):
         ret = []
@@ -343,13 +342,14 @@ class Application(Frame):
 
     def makeInputFrame(self):
         self.inp_seed         = String()
+        self.bgColor          = String()
         self.gen_value        = Int()
         self.rainbowCheck     = Int()
         self.fram_input       = Frame(self,              bd= 2, relief= self.style, width= input_frame_width, height= input_frame_height)
         self.fram_seed        = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_prod        = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_draw        = Frame(self.fram_input,   bd= 1, relief= self.style)
-        self.fram_slide       = Frame(self.fram_input,   bd= 1, relief= self.style)
+        self.fram_drawParams  = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_gen         = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_output      = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.menu_gen         = DropDown(self.fram_gen,  textvariable= self.gen_value, state= 'readonly')
@@ -358,9 +358,10 @@ class Application(Frame):
         self.scrl_output      = Scrollbar(self.fram_output)
         self.list_prod        = List(self.fram_prod,     selectmode= BROWSE, font= "Courier 8", height= 5)
         self.list_draw        = List(self.fram_draw,     selectmode= BROWSE, font= "Courier 8", height= 5)
-        self.slid_linesize    = Slider(self.fram_slide,  from_= 0.1, to= 10.0, orient=HORIZONTAL, resolution= 0.1, length= 180)
-        self.slid_timer       = Slider(self.fram_slide,  from_= 0, to= 2,          orient= HORIZONTAL, resolution= 0.02, length= 180)
-        self.slid_angle       = Slider(self.fram_slide,  from_= 0, to= 359,        orient= HORIZONTAL, length= 180)
+        self.slid_linesize    = Slider(self.fram_drawParams,  from_= 0.1, to= 10.0,     orient= HORIZONTAL, resolution= 0.1, length= 180)
+        self.slid_timer       = Slider(self.fram_drawParams,  from_= 0, to= 2,          orient= HORIZONTAL, resolution= 0.02, length= 180)
+        self.slid_angle       = Slider(self.fram_drawParams,  from_= 0, to= 359,        orient= HORIZONTAL, length= 180)
+        self.entr_bgcolor     = Input (self.fram_drawParams, textvariable= self.bgColor)
         self.butt_prodAdd     = Button(self.fram_prod,   text= "Add",    width=8, command= self.AddProductionRule)
         self.butt_prodEdit    = Button(self.fram_prod,   text= "Edit",   width=8, command= self.EditProductionRule)
         self.butt_prodDelete  = Button(self.fram_prod,   text= "Delete", width=8, command= self.DeleteProductionRule)
@@ -368,44 +369,47 @@ class Application(Frame):
         self.butt_drawEdit    = Button(self.fram_draw,   text= "Edit",   width=8, command= self.EditDrawingRule)
         self.butt_drawDelete  = Button(self.fram_draw,   text= "Delete", width=8, command= self.DeleteDrawingRule)
         self.chek_incColor    = CheckBox(self.fram_draw, text= "Rainbow", variable= self.rainbowCheck)
-        Label(self.fram_seed,   text= "Axiom:", width=8).grid(row=0, column=0)
-        Label(self.fram_prod,   text= "Production\nRules:", width=8).grid(row=0, column=0)
-        Label(self.fram_draw,   text= "Drawing\nRules:", width=8).grid(row=0, column=0)
-        Label(self.fram_slide,  text= "Line Size:").grid(row=0, column=0)
-        Label(self.fram_slide,  text= "Delay (ms):").grid(row=1, column=0)
-        Label(self.fram_slide,  text= "Starting Angle:").grid(row=2, column=0)
-        Label(self.fram_output, text= "Output:").grid(row=0, column=0)
-        Label(self.fram_gen,    text= "Generations:").grid(row=0, column=0)
+        Label(self.fram_seed,       text= "Axiom:", width=8).grid             (row=0, column=0)
+        Label(self.fram_prod,       text= "Production\nRules:", width=8).grid (row=0, column=0)
+        Label(self.fram_draw,       text= "Drawing\nRules:", width=8).grid    (row=0, column=0)
+        Label(self.fram_drawParams, text= "Line Size:").grid                  (row=0, column=0)
+        Label(self.fram_drawParams, text= "Delay (ms):").grid                 (row=1, column=0)
+        Label(self.fram_drawParams, text= "Starting Angle:").grid             (row=2, column=0)
+        Label(self.fram_drawParams, text= "Background Color:").grid           (row=3, column=0)
+        Label(self.fram_output,     text= "Output:").grid                     (row=0, column=0)
+        Label(self.fram_gen,        text= "Generations:").grid                (row=0, column=0)
 
         self.gen_value.set(1)
         self.menu_gen['values'] = tuple(range(1, 13))
         self.slid_linesize.set(1.0)
+        self.bgColor.set( Color.default() )
         self.text_output.config(state='disabled', yscrollcommand= self.scrl_output.set)
         self.scrl_output.config(command=self.text_output.yview)
 
-        self.fram_input.grid(     row=0, column=0)
-        self.fram_seed.grid(      row=1, column=0, sticky= 'ew')
-        self.fram_prod.grid(      row=2, column=0, sticky= 'ew')
-        self.fram_draw.grid(      row=3, column=0, sticky= 'ew')
-        self.fram_slide.grid(     row=4, column=0, sticky= 'ew')
-        self.fram_gen.grid(       row=5, column=0, sticky= 'ew')
-        self.fram_output.grid(    row=6, column=0, sticky= 'ew')
-        self.entr_seed.grid(      row=0, column=1, sticky= 'ew')
-        self.list_prod.grid(      row=0, column=1, sticky= 'ew')
-        self.butt_prodAdd.grid(   row=1, column=0, sticky= 'ew')
-        self.butt_prodEdit.grid(  row=1, column=1, sticky= 'ew')
-        self.butt_prodDelete.grid(row=1, column=2, sticky= 'ew')
-        self.list_draw.grid(      row=0, column=1)
-        self.butt_drawAdd.grid(   row=1, column=0, sticky= 'ew')
-        self.butt_drawEdit.grid(  row=1, column=1, sticky= 'ew')
-        self.butt_drawDelete.grid(row=1, column=2, sticky= 'ew')
-        self.chek_incColor.grid(  row=0, column=2)
-        self.slid_linesize.grid(  row=0, column=1, sticky= 'ew')
-        self.slid_timer.grid(     row=1, column=1, sticky= 'ew')
-        self.slid_angle.grid(     row=2, column=1, sticky= 'ew')
-        self.menu_gen.grid(       row=0, column=1, sticky= 'ew')
-        self.text_output.grid(    row=1, column=0)
-        self.scrl_output.grid(    row=1, column=1, sticky= 'ns')
+        self.fram_input.grid      (row=0, column=0)
+        self.fram_seed.grid       (row=1, column=0, sticky= 'ew')
+        self.fram_prod.grid       (row=2, column=0, sticky= 'ew')
+        self.fram_draw.grid       (row=3, column=0, sticky= 'ew')
+        self.fram_drawParams.grid (row=4, column=0, sticky= 'ew')
+        self.fram_gen.grid        (row=5, column=0, sticky= 'ew')
+        self.fram_output.grid     (row=6, column=0, sticky= 'ew')
+        self.entr_seed.grid       (row=0, column=1, sticky= 'ew')
+        self.list_prod.grid       (row=0, column=1, sticky= 'ew')
+        self.butt_prodAdd.grid    (row=1, column=0, sticky= 'ew')
+        self.butt_prodEdit.grid   (row=1, column=1, sticky= 'ew')
+        self.butt_prodDelete.grid (row=1, column=2, sticky= 'ew')
+        self.list_draw.grid       (row=0, column=1)
+        self.butt_drawAdd.grid    (row=1, column=0, sticky= 'ew')
+        self.butt_drawEdit.grid   (row=1, column=1, sticky= 'ew')
+        self.butt_drawDelete.grid (row=1, column=2, sticky= 'ew')
+        self.chek_incColor.grid   (row=0, column=2)
+        self.slid_linesize.grid   (row=0, column=1, sticky= 'ew')
+        self.slid_timer.grid      (row=1, column=1, sticky= 'ew')
+        self.slid_angle.grid      (row=2, column=1, sticky= 'ew')
+        self.entr_bgcolor.grid    (row=3, column=1, sticky= 'ew')
+        self.menu_gen.grid        (row=0, column=1, sticky= 'ew')
+        self.text_output.grid     (row=1, column=0)
+        self.scrl_output.grid     (row=1, column=1, sticky= 'ns')
 
     def makeCanvasFrame(self):
         self.fram_canvas = Frame(self, bd=10, relief=self.style)
