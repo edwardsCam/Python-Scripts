@@ -77,6 +77,7 @@ class Application(Frame):
 
     def drawAll(self, newWindow= True):
         if self.generated == True:
+            self.butt_print.config(state= 'disabled')
             self.timebuff = 0.0
             self.color = '#000000'
             self.thick = 5
@@ -108,6 +109,7 @@ class Application(Frame):
                             s = float(self.slid_timer.get())
                             self.do(params, s, rainbow)
                             break
+            self.butt_print.config(state= 'normal')
 
     def incColor(self):
         color = hex(int(16777215 * self.percent)).split('x')[1]
@@ -284,7 +286,7 @@ class Application(Frame):
 
     def save(self):
         try:
-            filename = filedialog.asksaveasfilename(**self.file_options)
+            filename = filedialog.asksaveasfilename(**self.txt_options)
             if filename:
                 f = open(filename, 'w')
                 f.write(self.packOutput())
@@ -294,7 +296,7 @@ class Application(Frame):
 
     def load(self):
         try:
-            filename = filedialog.askopenfilename(**self.file_options)
+            filename = filedialog.askopenfilename(**self.txt_options)
             if filename:
                 f = open(filename, 'r')
                 self.parseSaveFile(f.read())
@@ -308,7 +310,9 @@ class Application(Frame):
             print("File IO error in load\n" + e)
 
 
-
+    def saveImage(self):
+        filename = filedialog.asksaveasfilename(**self.ps_options)
+        self.curr_canvas.postscript(file=filename, colormode='color')
 
     def click(self, event):
         self.startingPoint = (event.x, event.y)
@@ -402,10 +406,12 @@ class Application(Frame):
         self.fram_ignition = Frame(self, bd=4, relief=self.style)
         self.butt_generate = Button(self.fram_ignition,   text= " -- GENERATE -- ", width=111, command= self.generate)
         self.butt_draw     = Button(self.fram_ignition,   text= " -- DRAW -- ",     width=100, command= self.drawAll, state= 'disabled')
+        self.butt_print    = Button(self.fram_ignition,   text= "Save Image", command= self.saveImage, state= 'disabled')
         self.chek_fullscrn = CheckBox(self.fram_ignition, text= "Fullscreen", variable= self.fullScreen, state= 'disabled')
         self.fram_ignition.grid(row=1, column=0, columnspan=2)
         self.butt_generate.grid(row=0, column=0, columnspan=2)
         self.butt_draw.grid(    row=1, column=0)
+        self.butt_print.grid(   row=0, column=2, rowspan= 2, sticky='ns')
         self.chek_fullscrn.grid(row=1, column=1)
 
     def createWidgets(self):
@@ -414,10 +420,14 @@ class Application(Frame):
         self.style         = RIDGE
         self.startingPoint = (20, 20)
         self.generated     = False
-        self.file_options = {}
-        self.file_options['defaultextension'] = '.txt'
-        self.file_options['filetypes'] = [('Plaintext', '.txt')]
-        self.file_options['initialdir'] = 'Patterns'
+        self.txt_options  = {}
+        self.ps_options  = {}
+        self.txt_options['defaultextension'] = '.txt'
+        self.txt_options['filetypes'] = [('Plaintext', '.txt')]
+        self.txt_options['initialdir'] = 'Patterns'
+        self.ps_options['defaultextension'] = '.ps'
+        self.ps_options['filetypes'] = [('Postscript Image', '.ps')]
+        self.ps_options['initialdir'] = 'Images'
         self.makeMenuBar()
         self.makeInputFrame()
         self.makeCanvasFrame()
