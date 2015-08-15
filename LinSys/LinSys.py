@@ -1,5 +1,5 @@
 from tkinter import Tk
-from tkinter import Frame, Menu, Button, Label, Canvas
+from tkinter import Frame, Menu, Button, Label, Canvas, Scrollbar
 from tkinter import Checkbutton as CheckBox
 from tkinter import Scale as Slider
 from tkinter import Listbox as List
@@ -335,6 +335,7 @@ class Application(Frame):
         self.menu_gen         = DropDown(self.fram_gen,  textvariable= self.gen_value, state= 'readonly')
         self.entr_seed        = Input(self.fram_seed,    textvariable= self.inp_seed)
         self.text_output      = Output(self.fram_output, width= 35, height= 10)
+        self.scrl_output      = Scrollbar(self.fram_output)
         self.list_prod        = List(self.fram_prod,     selectmode= BROWSE, font= "Courier 8", height= 5)
         self.list_draw        = List(self.fram_draw,     selectmode= BROWSE, font= "Courier 8", height= 5)
         self.slid_linesize    = Slider(self.fram_slide,  from_= 0.1, to= 10.0, orient=HORIZONTAL, resolution= 0.1, length= 180)
@@ -359,7 +360,8 @@ class Application(Frame):
         self.gen_value.set(1)
         self.menu_gen['values'] = tuple(range(1, 13))
         self.slid_linesize.set(1.0)
-        self.text_output.config(state='disabled')
+        self.text_output.config(state='disabled', yscrollcommand= self.scrl_output.set)
+        self.scrl_output.config(command=self.text_output.yview)
 
         self.fram_input.grid(     row=0, column=0)
         self.fram_seed.grid(      row=1, column=0, sticky='ew')
@@ -378,11 +380,12 @@ class Application(Frame):
         self.butt_drawEdit.grid(  row=1, column=1, sticky='ew')
         self.butt_drawDelete.grid(row=1, column=2, sticky='ew')
         self.chek_incColor.grid(  row=0, column=2)
-        self.slid_linesize.grid(  row=0, column=1, sticky='e')
-        self.slid_timer.grid(     row=1, column=1, sticky='e')
-        self.slid_angle.grid(     row=2, column=1, sticky='e')
-        self.menu_gen.grid(       row=0, column=1)
+        self.slid_linesize.grid(  row=0, column=1, sticky='ew')
+        self.slid_timer.grid(     row=1, column=1, sticky='ew')
+        self.slid_angle.grid(     row=2, column=1, sticky='ew')
+        self.menu_gen.grid(       row=0, column=1, sticky='ew')
         self.text_output.grid(    row=1, column=0)
+        self.scrl_output.grid(    row=1, column=1, sticky= 'ns')
 
     def makeCanvasFrame(self):
         self.fram_canvas = Frame(self, bd=10, relief=self.style)
