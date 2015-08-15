@@ -1,16 +1,18 @@
 import Dialog as d
-import tkinter as tk
-from tkinter import ttk
+from tkinter import Label
+from tkinter import Entry as Input
+from tkinter import StringVar as String
+from tkinter.ttk import Combobox as Dropdown
 
 class AddDrawingRuleDialog(d.Dialog):
 
 	def body(self, master, existingRule=None):
-		self.cmd = tk.StringVar()
-		tk.Label(master, text="Symbol:").grid(row=0)
-		tk.Label(master, text="Rule:").grid(row=1)
-		self.e1 = tk.Entry(master, width=20)
-		self.e2 = ttk.Combobox(master, textvariable=self.cmd, width=7)
-		self.e3 = tk.Entry(master, width=10)
+		self.cmd = String()
+		Label(master, text= "Symbol:").grid(row=0)
+		Label(master, text= "Rule:"  ).grid(row=1)
+		self.e1 = Input(master, width=20)
+		self.e2 = Dropdown(master, textvariable= self.cmd, width= 7, state= 'readonly')
+		self.e3 = Input(master, width=10)
 		self.e2['values'] = ['draw', 'turn', 'skip', 'back', 'color', 'thick']
 		self.e1.grid(row=0, column=1, columnspan=2)
 		self.e2.grid(row=1, column=1)

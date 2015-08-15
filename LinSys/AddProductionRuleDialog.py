@@ -1,13 +1,14 @@
 import Dialog as d
-import tkinter as tk
+from tkinter import Label
+from tkinter import Entry as Input
 
 class AddProductionRuleDialog(d.Dialog):
 
 	def body(self, master, existingRule=None):
-		tk.Label(master, text="Symbol:").grid(row=0)
-		tk.Label(master, text="Replacement:").grid(row=1)
-		self.e1 = tk.Entry(master)
-		self.e2 = tk.Entry(master)
+		Label(master, text= "Symbol:"     ).grid(row=0)
+		Label(master, text= "Replacement:").grid(row=1)
+		self.e1 = Input(master)
+		self.e2 = Input(master)
 		self.e1.grid(row=0, column=1)
 		self.e2.grid(row=1, column=1)
 		if existingRule:

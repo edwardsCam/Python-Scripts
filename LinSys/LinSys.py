@@ -1,9 +1,5 @@
 from tkinter import Tk
-from tkinter import Frame
-from tkinter import Menu
-from tkinter import Button
-from tkinter import Label
-from tkinter import Canvas
+from tkinter import Frame, Menu, Button, Label, Canvas
 from tkinter import Checkbutton as CheckBox
 from tkinter import Scale as Slider
 from tkinter import Listbox as List
@@ -20,9 +16,7 @@ from tkinter.ttk import Combobox as DropDown
 import AddProductionRuleDialog as dp
 import AddDrawingRuleDialog as dd
 import BigCanvas as dc
-import Rule
-import Draw
-import Generator
+import Rule, Draw, Generator
 
 class Application(Frame):
 
@@ -338,7 +332,7 @@ class Application(Frame):
         self.fram_slide       = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_gen         = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_output      = Frame(self.fram_input,   bd= 1, relief= self.style)
-        self.menu_gen         = DropDown(self.fram_gen,  textvariable= self.gen_value)
+        self.menu_gen         = DropDown(self.fram_gen,  textvariable= self.gen_value, state= 'readonly')
         self.entr_seed        = Input(self.fram_seed,    textvariable= self.inp_seed)
         self.text_output      = Output(self.fram_output, width= 35, height= 10)
         self.list_prod        = List(self.fram_prod,     selectmode= BROWSE, font= "Courier 8", height= 5)
