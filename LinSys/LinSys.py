@@ -286,7 +286,7 @@ class Application(Frame):
 
     def save(self):
         try:
-            filename = filedialog.asksaveasfilename(**self.txt_options)
+            filename = filedialog.asksaveasfilename(**self.file_options['txt'])
             if filename:
                 f = open(filename, 'w')
                 f.write(self.packOutput())
@@ -296,7 +296,7 @@ class Application(Frame):
 
     def load(self):
         try:
-            filename = filedialog.askopenfilename(**self.txt_options)
+            filename = filedialog.askopenfilename(**self.file_options['txt'])
             if filename:
                 f = open(filename, 'r')
                 self.parseSaveFile(f.read())
@@ -311,7 +311,7 @@ class Application(Frame):
 
 
     def saveImage(self):
-        filename = filedialog.asksaveasfilename(**self.ps_options)
+        filename = filedialog.asksaveasfilename(**self.file_options['ps'])
         self.curr_canvas.postscript(file=filename, colormode='color')
 
     def click(self, event):
@@ -320,6 +320,19 @@ class Application(Frame):
     def clickAndRedraw(self, event):
         self.click(event)
         self.drawAll(False)
+
+    def fileOptions(self):
+        self.file_options = {}
+        txt_options  = {}
+        ps_options  = {}
+        txt_options['defaultextension'] = '.txt'
+        txt_options['filetypes'] = [('Plaintext', '.txt')]
+        txt_options['initialdir'] = 'Patterns'
+        ps_options['defaultextension'] = '.ps'
+        ps_options['filetypes'] = [('Postscript Image', '.ps')]
+        ps_options['initialdir'] = 'Images'
+        self.file_options['txt'] = txt_options
+        self.file_options['ps'] = ps_options
 
     def makeMenuBar(self):
         self.menubar = Menu(self);
@@ -420,14 +433,7 @@ class Application(Frame):
         self.style         = RIDGE
         self.startingPoint = (20, 20)
         self.generated     = False
-        self.txt_options  = {}
-        self.ps_options  = {}
-        self.txt_options['defaultextension'] = '.txt'
-        self.txt_options['filetypes'] = [('Plaintext', '.txt')]
-        self.txt_options['initialdir'] = 'Patterns'
-        self.ps_options['defaultextension'] = '.ps'
-        self.ps_options['filetypes'] = [('Postscript Image', '.ps')]
-        self.ps_options['initialdir'] = 'Images'
+        self.fileOptions()
         self.makeMenuBar()
         self.makeInputFrame()
         self.makeCanvasFrame()
