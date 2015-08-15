@@ -19,7 +19,8 @@ class AddDrawingRuleDialog(d.Dialog):
 		self.e3.grid(row=1, column=2)
 		if existingRule:
 			self.e1.insert(0, existingRule[1])
-			self.e2.insert(0, existingRule[2])
+			self.e2.set(existingRule[2])
+			#self.e2.insert(0, existingRule[2])
 			if len(existingRule) > 3:
 				self.e3.insert(0, existingRule[3])
 		return self.e1

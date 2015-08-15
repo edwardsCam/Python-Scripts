@@ -87,6 +87,7 @@ class Application(Frame):
             if self.fullScreen.get() == 1:
                 if newWindow:
                     self.curr_canvas = dc.BigCanvas(self).canvas
+                self.canvas.delete("all")
             else:
                 self.curr_canvas = self.canvas
             self.curr_canvas.delete("all")
@@ -344,7 +345,7 @@ class Application(Frame):
         self.inp_seed         = String()
         self.gen_value        = Int()
         self.rainbowCheck     = Int()
-        self.fram_input       = Frame(self,              bd= 2, relief= self.style, width= 300, height= 900)
+        self.fram_input       = Frame(self,              bd= 2, relief= self.style, width= input_frame_width, height= input_frame_height)
         self.fram_seed        = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_prod        = Frame(self.fram_input,   bd= 1, relief= self.style)
         self.fram_draw        = Frame(self.fram_input,   bd= 1, relief= self.style)
@@ -358,7 +359,7 @@ class Application(Frame):
         self.list_prod        = List(self.fram_prod,     selectmode= BROWSE, font= "Courier 8", height= 5)
         self.list_draw        = List(self.fram_draw,     selectmode= BROWSE, font= "Courier 8", height= 5)
         self.slid_linesize    = Slider(self.fram_slide,  from_= 0.1, to= 10.0, orient=HORIZONTAL, resolution= 0.1, length= 180)
-        self.slid_timer       = Slider(self.fram_slide,  from_= 0, to= 5,          orient= HORIZONTAL, resolution= 0.05, length= 180)
+        self.slid_timer       = Slider(self.fram_slide,  from_= 0, to= 2,          orient= HORIZONTAL, resolution= 0.02, length= 180)
         self.slid_angle       = Slider(self.fram_slide,  from_= 0, to= 359,        orient= HORIZONTAL, length= 180)
         self.butt_prodAdd     = Button(self.fram_prod,   text= "Add",    width=8, command= self.AddProductionRule)
         self.butt_prodEdit    = Button(self.fram_prod,   text= "Edit",   width=8, command= self.EditProductionRule)
@@ -408,7 +409,7 @@ class Application(Frame):
 
     def makeCanvasFrame(self):
         self.fram_canvas = Frame(self, bd=10, relief=self.style)
-        self.canvas      = Canvas(self.fram_canvas, width=900, height=580)
+        self.canvas      = Canvas(self.fram_canvas, width= canvas_width, height= canvas_height)
         self.fram_canvas.grid(row=0, column=1, sticky='nesw')
         self.canvas.grid(sticky='nesw')
         self.canvas.bind("<Button-1>", self.click)
@@ -416,7 +417,7 @@ class Application(Frame):
 
     def makeIgnitionFrame(self):
         self.fullScreen    = Int()
-        self.fram_ignition = Frame(self, bd=4, relief=self.style)
+        self.fram_ignition = Frame(self, bd=4, relief=self.style, width= ignition_frame_width, height= ignition_frame_height)
         self.butt_generate = Button(self.fram_ignition,   text= " -- GENERATE -- ", width=111, command= self.generate)
         self.butt_draw     = Button(self.fram_ignition,   text= " -- DRAW -- ",     width=100, command= self.drawAll, state= 'disabled')
         self.butt_print    = Button(self.fram_ignition,   text= "Save Image", command= self.saveImage, state= 'disabled')
@@ -441,7 +442,17 @@ class Application(Frame):
 
 root = Tk()
 root.title("Lindenmayer Systems")
-root.geometry("1270x680+0+0")
+padx                  = 50
+pady                  = 100
+window_width          = root.winfo_screenwidth()  - padx
+window_height         = root.winfo_screenheight() - pady
+input_frame_width     = 300
+ignition_frame_width  = 500
+ignition_frame_height = 100
+canvas_width          = window_width - input_frame_width - padx
+canvas_height         = window_height - ignition_frame_height
+input_frame_height    = canvas_height
+dimensions = "{0}x{1}+0+0".format(window_width, window_height)
+root.geometry(dimensions)
 #root.wm_iconbitmap('icon.ico')
-app = Application(master=root)
-app.mainloop()
+Application(master=root).mainloop()
