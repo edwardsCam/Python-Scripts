@@ -19,6 +19,7 @@ from tkinter import filedialog
 from tkinter.ttk import Combobox as DropDown
 import AddProductionRuleDialog as dp
 import AddDrawingRuleDialog as dd
+import BigCanvas as dc
 import Rule
 import Draw
 import Generator
@@ -39,9 +40,9 @@ class Application(Frame):
 
     def draw(self, n, step=False):
         p1, p2 = Draw.move(n)
-        self.canvas.create_line(p1[0], p1[1], p2[0], p2[1], fill=self.color, width=self.thick)
+        self.curr_canvas.create_line(p1[0], p1[1], p2[0], p2[1], fill= self.color, width= self.thick)
         if step:
-            self.canvas.update_idletasks()
+            self.curr_canvas.update_idletasks()
 
     def do(self, action, step, rainbow):
         if len(action) > 1:
@@ -78,15 +79,20 @@ class Application(Frame):
         else:
             print("Unknown command " + cmd)
 
-    def drawAll(self):
-        self.timebuff = 0.0
-        self.color = '#000000'
-        self.thick = 5
+    def drawAll(self, newWindow= True):
         if self.generated == True:
+            self.timebuff = 0.0
+            self.color = '#000000'
+            self.thick = 5
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
             Draw.init(self.startingPoint, l, a)
-            self.canvas.delete("all")
+            if self.fullScreen.get() == 1:
+                if newWindow:
+                    self.curr_canvas = dc.BigCanvas(self).canvas
+            else:
+                self.curr_canvas = self.canvas
+            self.curr_canvas.delete("all")
             rainbow = self.rainbowCheck.get() == 1
             if rainbow or self.incThickYN:
                 self.incStep = 1.0/float(self.getDrawCount(self.output))
@@ -311,6 +317,10 @@ class Application(Frame):
     def click(self, event):
         self.startingPoint = (event.x, event.y)
 
+    def clickAndRedraw(self, event):
+        self.click(event)
+        self.drawAll(False)
+
     def makeMenuBar(self):
         self.menubar = Menu(self);
         self.menubar.add_command(label="Save", command= self.save)
@@ -386,14 +396,18 @@ class Application(Frame):
         self.fram_canvas.grid(row=0, column=1, sticky='nesw')
         self.canvas.grid(sticky='nesw')
         self.canvas.bind("<Button-1>", self.click)
+        self.curr_canvas = self.canvas
 
     def makeIgnitionFrame(self):
+        self.fullScreen    = Int()
         self.fram_ignition = Frame(self, bd=4, relief=self.style)
-        self.butt_generate = Button(self.fram_ignition, text=" -- GENERATE -- ", width=100, command= self.generate)
-        self.butt_draw     = Button(self.fram_ignition, text=" -- DRAW -- ",     width=100, command= self.drawAll)
+        self.butt_generate = Button(self.fram_ignition,   text= " -- GENERATE -- ", width=111, command= self.generate)
+        self.butt_draw     = Button(self.fram_ignition,   text= " -- DRAW -- ",     width=100, command= self.drawAll)
+        self.chek_fullscrn = CheckBox(self.fram_ignition, text= "Fullscreen", variable= self.fullScreen)
         self.fram_ignition.grid(row=1, column=0, columnspan=2)
-        self.butt_generate.grid()
-        self.butt_draw.grid()
+        self.butt_generate.grid(row=0, column=0, columnspan=2)
+        self.butt_draw.grid(    row=1, column=0)
+        self.chek_fullscrn.grid(row=1, column=1)
 
     def createWidgets(self):
         self.incThickYN    = False
