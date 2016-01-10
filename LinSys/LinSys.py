@@ -70,7 +70,7 @@ class Application(Frame):
             Draw.back(float(p))
         elif cmd == "color":
             if not rainbow:
-                self.color = Color.get(p)
+                self.color = Color.getHexString(p)
         elif cmd == "thick":
             self.thick = int(p)
         else:
@@ -81,7 +81,7 @@ class Application(Frame):
             self.butt_print.config(state= 'disabled')
             self.timebuff = 0.0
             self.color = Color.white()
-            self.thick = 5
+            self.thick = 2
             l = float(self.slid_linesize.get())
             a = float(self.slid_angle.get())
             Draw.init(self.startingPoint, l, a)
@@ -92,7 +92,7 @@ class Application(Frame):
             else:
                 self.curr_canvas = self.canvas
             self.curr_canvas.delete("all")
-            self.curr_canvas.config(bg= Color.get(self.bgColor.get()))
+            self.curr_canvas.config(bg= Color.getHexString(self.bgColor.get()))
             rainbow = self.rainbowCheck.get() == 1
             if rainbow or self.incThickYN:
                 self.incStep = 1.0/float(self.getDrawCount(self.output))
@@ -115,7 +115,7 @@ class Application(Frame):
             self.butt_print.config(state= 'normal')
 
     def incColor(self):
-        self.color    = Color.getByPercent(self.percent)
+        self.color    = Color.getValueByPercent(self.percent)
         self.percent += self.incStep
 
     def incThick(self, reverse, incYN):
