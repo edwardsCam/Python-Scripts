@@ -15,6 +15,7 @@ from tkinter import filedialog
 from tkinter.ttk import Combobox as DropDown
 import AddProductionRuleDialog as dp
 import AddDrawingRuleDialog as dd
+import HelpDialog as help
 import BigCanvas as dc
 import Rule, Draw, Generator, Color
 
@@ -309,6 +310,9 @@ class Application(Frame):
         except Exception as e:
             print("File IO error in load\n" + e)
 
+    def help(self):
+        help.HelpDialog(self)
+
 
     def saveImage(self):
         filename = filedialog.asksaveasfilename(**self.file_options['ps'])
@@ -338,6 +342,7 @@ class Application(Frame):
         self.menubar = Menu(self);
         self.menubar.add_command(label="Save", command= self.save)
         self.menubar.add_command(label="Load", command= self.load)
+        self.menubar.add_command(label="Help", command= self.help)
         root.config(menu= self.menubar)
 
     def makeInputFrame(self):
