@@ -1,60 +1,74 @@
 # returns the hex value according to a "progress" percentage
 # pattern goes as follows:
-#    black, blue, cyan, green, yellow, red, magenta, white
+#    black, red, yellow, green, cyan, blue, magenta, white
 def getValueByPercent(p_overall):
 
-	# x0 - xFF
-	# black - blue
+	xff = shiftLeft(1)-1
+	xff00 = shiftLeft(xff)
+	xff0000 = shiftLeft(xff00)
+
+	val = 0
+	base = 0
+
+	# x000000 -> xFF0000
+	# black -> red
 	if p_overall < (1/7):
 		p_partial = getPartialProgress(p_overall, 0);
 		val = getStageValue(p_partial)
-		return hexColorOf(val)
+		val = shiftLeft(val)
+		val = shiftLeft(val)
 
-	# xFF - xFFFF
-	# blue - cyan
-	if p_overall < (2/7):
+	# xFF0000 -> xFFFF00
+	# red -> yellow
+	elif p_overall < (2/7):
+		base = xff0000
 		p_partial = getPartialProgress(p_overall, 1)
 		val = getStageValue(p_partial)
 		val = shiftLeft(val)
-		return hexColorOf(val + 255)
 
-	# xFFFF - xFF00
-	# cyan - green
-	if p_overall < (3/7):
+	# xFFFF00 -> x00FF00
+	# yellow -> green
+	elif p_overall < (3/7):
+		base = xff00
 		p_partial = getPartialProgress(p_overall, 2)
-		val = getStageValue(p_partial)
-		return hexColorOf(65535 - val)
+		val = getStageValue(1-p_partial)
+		val = shiftLeft(val)
+		val = shiftLeft(val)
 
-	# xFF00 - xFFFF00
-	# green - yellow
-	if p_overall < (4/7):
+	# x00FF00 -> x00FFFF
+	# green -> cyan
+	elif p_overall < (4/7):
+		base = xff00
 		p_partial = getPartialProgress(p_overall, 3)
 		val = getStageValue(p_partial)
-		val = shiftLeft(shiftLeft(val))
-		return hexColorOf(val + 65280)
 
-	# xFFFF00 - xFF0000
-	# yellow - red
-	if p_overall < (5/7):
+	# x00FFFF -> x0000FF
+	# cyan -> blue
+	elif p_overall < (5/7):
+		base = xff
 		p_partial = getPartialProgress(p_overall, 4)
-		val = getStageValue(p_partial)
+		val = getStageValue(1-p_partial)
 		val = shiftLeft(val)
-		return hexColorOf(16776960 - val)
 
-	# xFF0000 - xFF00FF
-	# red - magenta
-	if p_overall < (6/7):
+	# x0000FF -> xFF00FF
+	# blue -> magenta
+	elif p_overall < (6/7):
+		base = xff
 		p_partial = getPartialProgress(p_overall, 5)
 		val = getStageValue(p_partial)
-		return hexColorOf(16711680 + val)
+		val = shiftLeft(val)
+		val = shiftLeft(val)
 
-	# xFF00FF - xFFFFFF
-	# magenta - white
-	p_partial = getPartialProgress(p_overall, 6)
-	val = getStageValue(p_partial)
-	val = shiftLeft(val)
-	val += 255
-	return hexColorOf(16711680 + val)
+	# xFF00FF -> xFFFFFF
+	# magenta -> white
+	else:
+		base = xff0000 + xff
+		p_partial = getPartialProgress(p_overall, 6)
+		val = getStageValue(p_partial)
+		val = shiftLeft(val)
+
+	return hexColorOf(base + val)
+
 
 # returns a hex representation of x
 # output is a string in the format /#\d{6}/
