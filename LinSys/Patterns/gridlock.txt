@@ -1,0 +1,1 @@
+@fx@$x|x+yfff+$y|f[+x-ff+x]xx-y@$+|turn:90$-|turn:-90$f|draw

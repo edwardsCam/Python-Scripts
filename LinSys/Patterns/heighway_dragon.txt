@@ -1,0 +1,1 @@
+@-x@$x|x+f+y$y|x-f-y@$+|turn:45$-|turn:-45$f|draw
